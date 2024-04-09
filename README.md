@@ -8,7 +8,7 @@ https://github.com/meamirghafoor/login-signup-with-SQLIte-using-kotlin-android-s
 Kotlin
 
 # IDE/ Tool
-Android Studio
+Android Studio 
 
 # Design Sample
 
