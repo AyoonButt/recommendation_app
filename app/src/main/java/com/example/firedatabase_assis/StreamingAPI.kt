@@ -135,8 +135,7 @@ class StreamingAPI : AppCompatActivity() {
                         episodeCount = media.episodeCount,
                         seasons = media.seasons
                     )
-
-
+                    
                     // Convert the response string to a JsonObject
                     val itemObject = JsonParser.parseString(response).asJsonObject
                     // Access the "items" array from the jsonObject
