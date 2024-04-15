@@ -23,6 +23,9 @@ class StreamingAPI : AppCompatActivity() {
     private val handler = Handler(Looper.getMainLooper())
     private var requestCount = 0
     private val maxRequestsPerDay = 90
+    val timer = Timer()
+
+    
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,16 +65,30 @@ class StreamingAPI : AppCompatActivity() {
                 "&show_type=all"
 
 
+        val startTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"))
+        startTime.set(Calendar.HOUR_OF_DAY, 0)
+        startTime.set(Calendar.MINUTE, 0)
+        startTime.set(Calendar.SECOND, 0)
+        startTime.set(Calendar.MILLISECOND, 0)
 
-        scheduleRequest(netflix, 1995)
-        scheduleRequest(prime, 1995)
-        scheduleRequest(hboMax, 1995)
-        scheduleRequest(hulu, 1995)
-        scheduleRequest(apple, 1995)
-        scheduleRequest(peacock, 1995)
+        timer.scheduleAtFixedRate(object : TimerTask() {
+            override fun run() {
+                // Call your functions here
+                scheduleRequest(netflix, 1995)
+                scheduleRequest(prime, 1995)
+                scheduleRequest(hboMax, 1995)
+                scheduleRequest(hulu, 1995)
+                scheduleRequest(apple, 1995)
+                scheduleRequest(peacock, 1995)
+
+                // Reset request counter to zero after each day
+                requestCount = 0
+            }
+        }, startTime.time, 24 * 60 * 60 * 1000) // Run every 24 hourstTime.time, 24 * 60 * 60 * 1000) // Run every 24 hours
 
 
-    }
+
+    
 
     private fun scheduleRequest(url: String, minYear: Int) {
         if (requestCount < maxRequestsPerDay) {
