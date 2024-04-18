@@ -24,6 +24,9 @@ class HomePage : AppCompatActivity() {
                 R.id.bottom_menu_explore->{
 
                 }
+                R.id.bottom_menu_communities->{
+
+                }
                 R.id.bottom_menu_profile->{
 
                 }
