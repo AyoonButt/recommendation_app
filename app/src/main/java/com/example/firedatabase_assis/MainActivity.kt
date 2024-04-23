@@ -40,6 +40,8 @@ class MainActivity : AppCompatActivity() {
                     binding.ed1.text.clear()
                     binding.ed2.text.clear()
                     binding.ed3.text.clear()
+                    val intent = Intent(this, HomePage::class.java)
+                    startActivity(intent)
                 } else {
                     var ad = AlertDialog.Builder(this)
                     ad.setTitle("Message")
