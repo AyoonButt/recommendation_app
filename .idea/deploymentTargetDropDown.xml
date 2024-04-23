@@ -2,33 +2,11 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
-      <entry key="PreferencesActivity">
-        <State />
-      </entry>
-      <entry key="SettingsActivity">
-        <State />
-      </entry>
-      <entry key="TimeActivity">
-        <State />
-      </entry>
-      <entry key="UserActivity">
+      <entry key="StreamingAPI">
         <State />
       </entry>
       <entry key="app">
-        <State>
-          <runningDeviceTargetSelectedWithDropDown>
-            <Target>
-              <type value="RUNNING_DEVICE_TARGET" />
-              <deviceKey>
-                <Key>
-                  <type value="SERIAL_NUMBER" />
-                  <value value="adb-R5CT13B6ERW-lZZQW3._adb-tls-connect._tcp" />
-                </Key>
-              </deviceKey>
-            </Target>
-          </runningDeviceTargetSelectedWithDropDown>
-          <timeTargetWasSelectedWithDropDown value="2024-04-17T08:50:09.931835100Z" />
-        </State>
+        <State />
       </entry>
       <entry key="login_form">
         <State />

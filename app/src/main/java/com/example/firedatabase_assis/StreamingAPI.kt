@@ -1,80 +1,71 @@
 package com.example.firedatabase_assis
 
-import Media
-import android.app.job.JobParameters
-import android.app.job.JobService
-import android.content.Context
-import android.content.SharedPreferences
+
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.AuthFailureError
 import com.android.volley.RequestQueue
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.google.gson.JsonParser
+import kotlinx.coroutines.*
 import org.json.JSONException
-import parseMediaJson
-import parseStreamingInfo
 
 
-class StreamingAPI : JobService() {
+class StreamingAPI : AppCompatActivity() {
+
 
     private lateinit var requestQueue: RequestQueue
-    private val handler = Handler(Looper.getMainLooper())
     private var requestCount = 0
+    private var schedulerCount = 0
     private val maxRequestsPerDay = 90
-    private lateinit var sharedPreferences: SharedPreferences
+    private val handler = Handler(Looper.getMainLooper())
+    private val minYear = 1995
 
 
-    override fun onStartJob(params: JobParameters?): Boolean {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        setContentView(R.layout.activity_welcome_window)
 
 
-        requestQueue = Volley.newRequestQueue(applicationContext)
-        sharedPreferences =
-            applicationContext.getSharedPreferences("StreamingAPI", Context.MODE_PRIVATE)
+        requestQueue = Volley.newRequestQueue(this)
 
         val netflix = "https://streaming-availability.p.rapidapi.com/search/filters" +
                 "?services=netflix&country=us&output_language=en" +
-                "&order_by=original_title&genres_relation=and&year_min=%d" +
+                "&order_by=original_title&genres_relation=and&year_min=$minYear" +
                 "&show_type=all"
 
         val prime = "https://streaming-availability.p.rapidapi.com/search/filters" +
                 "?services=prime.subscription&country=us&output_language=en" +
-                "&order_by=original_title&genres_relation=and&year_min=%d" +
+                "&order_by=original_title&genres_relation=and&year_min=$minYear" +
                 "&show_type=all"
 
         val hboMax = "https://streaming-availability.p.rapidapi.com/search/filters" +
                 "?services=hbo,hulu.addon.hbo,prime.addon.hbomaxus&country=us&output_language=en" +
-                "&order_by=original_title&genres_relation=and&year_min=%d" +
+                "&order_by=original_title&genres_relation=and&year_min=$minYear" +
                 "&show_type=all"
 
         val hulu = "https://streaming-availability.p.rapidapi.com/search/filters" +
-                "?services=prime.subscription&country=us&output_language=en" +
-                "&order_by=original_title&genres_relation=and&year_min=%d" +
+                "?services=hulu.subscription,hulu.addon.hbo&country=us&output_language=en" +
+                "&order_by=original_title&genres_relation=and&year_min=$minYear" +
                 "&show_type=all"
 
         val apple = "https://streaming-availability.p.rapidapi.com/search/filters" +
-                "?services=prime.subscription&country=us&output_language=en" +
-                "&order_by=original_title&genres_relation=and&year_min=%d" +
+                "?services=apple.addon&country=us&output_language=en" +
+                "&order_by=original_title&genres_relation=and&year_min=$minYear" +
                 "&show_type=all"
 
         val peacock = "https://streaming-availability.p.rapidapi.com/search/filters" +
-                "?services=prime.subscription&country=us&output_language=en" +
-                "&order_by=original_title&genres_relation=and&year_min=%d" +
+                "?services=peacock.free&country=us&output_language=en" +
+                "&order_by=original_title&genres_relation=and&year_min=$minYear" +
                 "&show_type=all"
 
 
-        /*val startTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"))
-        startTime.set(Calendar.HOUR_OF_DAY, 0)
-        startTime.set(Calendar.MINUTE, 0)
-        startTime.set(Calendar.SECOND, 0)
-        startTime.set(Calendar.MILLISECOND, 0)
-         */
-
-
-        // Call your functions here
         scheduleRequest(netflix, 1995)
         scheduleRequest(prime, 1995)
         scheduleRequest(hboMax, 1995)
@@ -85,36 +76,39 @@ class StreamingAPI : JobService() {
         // Reset request counter to zero after each day
         requestCount = 0
 
-
-        return false // Return false because your job is not offloaded to a separate thread
-    }
-
-    override fun onStopJob(params: JobParameters?): Boolean {
-        requestQueue.cancelAll(this)
-        requestQueue.stop() // Stop the request queue to release system resources
-        return true // Return true to indicate that the job should be rescheduled
     }
 
 
     private fun scheduleRequest(url: String, minYear: Int) {
-        if (requestCount < maxRequestsPerDay) {
-            handler.postDelayed({
-                val fullUrl = "$url&timestamp=${System.currentTimeMillis()}"
-                makeRequest(fullUrl, handler, minYear, 300000)
-            }, 300000)
-        } else {
-            Log.d("StreamingAPI", "Max requests per day reached")
+
+        schedulerCount++
+
+        if (schedulerCount == 6) {
+            schedulerCount = 0
         }
+
+        handler.postDelayed({
+            makeRequest(
+                "$url&timestamp=${System.currentTimeMillis()}",
+                handler,
+                minYear,
+                30000
+            )
+        }, 30000)
+
     }
 
     private fun makeRequest(
-        url: String,
-        handler: Handler,
-        minYear: Int,
-        delayMillis: Long = 300000
+        url: String, handler: Handler, minYear: Int, delayMillis: Long = 30000
     ) {
 
+        if (!shouldScheduleRequest()) {
+            Log.d("StreamingAPI", "Max requests per day reached")
+            return
+        }
+
         requestCount++
+
 
         val stringRequest = object : StringRequest(
 
@@ -134,83 +128,74 @@ class StreamingAPI : JobService() {
 
 
                 try {
-                    // Parse the response into Media object
-                    val media = parseMediaJson(response)
-                    // Create MediaEntity from Media object
-                    val mediaEntity = Media(
-                        type = media.type,
-                        title = media.title,
-                        overview = media.overview,
-                        cast = media.cast,
-                        year = media.year,
-                        imdbId = media.imdbId,
-                        tmdbId = media.tmdbId,
-                        originalTitle = media.originalTitle,
-                        genres = media.genres,
-                        directors = media.directors,
-                        creators = media.creators,
-                        status = media.status,
-                        seasonCount = media.seasonCount,
-                        episodeCount = media.episodeCount,
-                        seasons = media.seasons
-                    )
 
-                    // Convert the response string to a JsonObject
-                    val itemObject = JsonParser.parseString(response).asJsonObject
-                    // Access the "items" array from the jsonObject
-                    val itemsArray = itemObject.getAsJsonArray("items")
+                    parseAndInsertMedia(response, applicationContext)
 
+                    getLastJsonObject(response)
 
-                    itemsArray?.forEach { item ->
-                        // Access the "streamingInfo" object from each item
-                        val streamingInfoJsonObject =
-                            item.asJsonObject.getAsJsonObject("streamingInfo")
+                    val dbHelper = MediaDBHelper(applicationContext)
 
-                        // Parse streaming info
-                        val usServices = parseStreamingInfo(streamingInfoJsonObject)
+                    val db = dbHelper.writableDatabase
+                    val tableName = "StreamingInfo"
+                    dbHelper.deleteRowsWithNullTypeAndService(db, tableName)
 
-                        val dbHelper = MediaDBHelper(this)
-
-                        dbHelper.insertRow(mediaEntity, usServices.us)
-
-
-                    }
-
-
-                    // Convert the response string to a JsonObject
-                    val jsonObject = JsonParser.parseString(response).asJsonObject
-                    val hasMore = jsonObject.get("hasMore").asBoolean
+                    val jsonObject = getLastJsonObject(response)
+                    val hasMore = jsonObject?.get("hasMore")?.asBoolean ?: false
 
                     if (hasMore) {
-                        val nextCursor = jsonObject.get("nextCursor").asString
+                        val nextCursor = jsonObject?.get("nextCursor")?.asString
+                        val storedCursors = dbHelper.isNextCursorEmpty()
 
-                        val storedCursors = getStoredCursors()
-                        if (requestCount == 1 && storedCursors.isNotEmpty()) {
-                            val storedCursor = getMostRecentCursor()
-                            handler.postDelayed(
-                                {
-                                    makeRequest(
-                                        "$url&cursor=$storedCursor",
-                                        Handler(Looper.getMainLooper()),
-                                        minYear, delayMillis + 300000
-                                    )
-                                },
-                                delayMillis
-                            )
+                        if (schedulerCount != 0 && !storedCursors) {
+                            val streamingService = getServiceName(url)
+                            val mostRecentCursor =
+                                dbHelper.getMostRecentNextCursor(streamingService)
+
+                            if (mostRecentCursor != null) {
+                                handler.postDelayed(
+                                    {
+                                        makeRequest(
+                                            "$url&cursor=$mostRecentCursor",
+                                            Handler(Looper.getMainLooper()),
+                                            minYear,
+                                            delayMillis + 30000
+                                        )
+                                    },
+                                    delayMillis
+                                )
+                            }
                         } else {
-                            // If it's not the first request of the day or no cursor stored
+                            // Schedule the delayed request using coroutines
                             handler.postDelayed(
                                 {
                                     makeRequest(
                                         "$url&cursor=$nextCursor",
                                         Handler(Looper.getMainLooper()),
-                                        minYear, delayMillis + 300000
+                                        minYear,
+                                        delayMillis + 30000
                                     )
                                 },
                                 delayMillis
-                            )
+                            ) // Delay of 5 minutes (1000 milliseconds)
                         }
+                    } else {
+                        // Schedule the next request without considering the cursor
+                        handler.postDelayed(
+                            {
+                                makeRequest(
+                                    url,
+                                    Handler(Looper.getMainLooper()),
+                                    minYear,
+                                    delayMillis + 30000
+                                )
+                            },
+                            delayMillis
+                        ) // Delay of 5 minutes (1000 milliseconds)
                     }
+
+                    dbHelper.printLatestRowFromDatabase(applicationContext)
+
+
 
                     handleResponse(response, url, minYear)
 
@@ -219,6 +204,7 @@ class StreamingAPI : JobService() {
                     e.printStackTrace()
                 }
             },
+
             Response.ErrorListener { error -> Log.e("VolleyError", error.toString()) }) {
 
             @Throws(AuthFailureError::class)
@@ -243,6 +229,7 @@ class StreamingAPI : JobService() {
         requestQueue.add(stringRequest)
     }
 
+
     // handle the case when no responses can be found and store nextCursor for use
     private fun handleResponse(response: String, url: String, minYear: Int) {
         // Parse the response and check if hasMore is false
@@ -253,60 +240,38 @@ class StreamingAPI : JobService() {
             val newMinYear = minYear - 5
             scheduleRequest(url, newMinYear)
 
-        } else {
-            // If hasMore is true, continue with pagination or other processing
-            val nextCursor = jsonObject.get("nextCursor").asString
-            updateStoredCursors(nextCursor)
-
         }
 
     }
 
-
-    private fun updateStoredCursors(newCursor: String) {
-        val sharedPreferences = getSharedPreferences("StreamingAPI", Context.MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-
-        // Get the current list of stored cursors
-        val storedCursors =
-            sharedPreferences.getStringSet("storedCursors", HashSet<String>()) ?: HashSet()
-
-        // Create a new set to hold the updated cursors
-        val updatedCursors = HashSet(storedCursors)
-
-        // Add the new cursor to the updated set
-        updatedCursors.add(newCursor)
-
-        // Check if the number of stored cursors exceeds the limit
-        if (updatedCursors.size > 50) {
-            // Remove the oldest cursors until the limit is met
-            val iterator = updatedCursors.iterator()
-            repeat(updatedCursors.size - 50) {
-                iterator.next()
-                iterator.remove()
+    fun getServiceName(url: String): String {
+        val servicesStartIndex = url.indexOf("services=")
+        if (servicesStartIndex != -1) {
+            val servicesEndIndex = url.indexOf("&", startIndex = servicesStartIndex)
+            if (servicesEndIndex != -1) {
+                val servicesSubstring = url.substring(servicesStartIndex + 9, servicesEndIndex)
+                return when {
+                    servicesSubstring.contains("netflix") -> "netflix"
+                    servicesSubstring.contains("prime.subscription") -> "prime"
+                    servicesSubstring.contains("hbo,hulu.addon.hbo,prime.addon.hbomaxus") -> "hbo"
+                    servicesSubstring.contains("hulu.subscription,hulu.addon.hbo") -> "hulu"
+                    servicesSubstring.contains("apple.addon") -> "apple"
+                    servicesSubstring.contains("peacock.free") -> "peacock"
+                    else -> ""
+                }
             }
         }
-
-        // Save the updated list of stored cursors
-        editor.putStringSet("storedCursors", updatedCursors)
-        editor.apply()
+        return ""
     }
 
 
-    private fun getMostRecentCursor(): String? {
-        val sharedPreferences = getSharedPreferences("StreamingAPI", Context.MODE_PRIVATE)
-
-        // Get the set of stored cursors
-        val storedCursors = sharedPreferences.getStringSet("storedCursors", HashSet()) ?: HashSet()
-
-        // Return the last (most recent) cursor from the set
-        return storedCursors.lastOrNull()
-    }
-
-    private fun getStoredCursors(): Set<String> {
-        val sharedPreferences = getSharedPreferences("StreamingAPI", Context.MODE_PRIVATE)
-        return sharedPreferences.getStringSet("storedCursors", HashSet()) ?: HashSet()
+    private fun shouldScheduleRequest(): Boolean {
+        return requestCount < maxRequestsPerDay
     }
 
 
 }
+
+
+
+

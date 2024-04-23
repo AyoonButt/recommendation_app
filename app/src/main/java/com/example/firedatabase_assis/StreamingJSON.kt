@@ -1,4 +1,7 @@
-import com.google.gson.Gson
+package com.example.firedatabase_assis
+
+import android.content.Context
+import android.util.Log
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 
@@ -71,8 +74,46 @@ data class Episode(
     val episodeNumber: Int
 )
 
+data class PaginationInfo(
+    val hasMore: Boolean?,
+    val nextCursor: String?
+)
+
+fun splitMediaJson(jsonResponse: String): List<JsonObject> {
+    val jsonObject = JsonParser.parseString(jsonResponse).asJsonObject
+    val resultArray = jsonObject.getAsJsonArray("result")
+    val mediaJsonObjects = mutableListOf<JsonObject>()
+    var lastJsonObject: JsonObject? = null
+
+    resultArray?.forEach { mediaElement ->
+        val mediaObject = mediaElement.asJsonObject
+        if (mediaObject.has("type")) {
+            lastJsonObject = mediaObject
+        } else {
+            lastJsonObject?.let {
+                val hasMoreJsonElement = mediaObject.get("hasMore")
+                val nextCursorJsonElement = mediaObject.get("nextCursor")
+
+                if (hasMoreJsonElement != null && nextCursorJsonElement != null) {
+                    it.add("hasMore", hasMoreJsonElement)
+                    it.add("nextCursor", nextCursorJsonElement)
+                }
+            }
+        }
+
+        // Check if the media object is not already in the list before adding it
+        if (lastJsonObject != null && !mediaJsonObjects.contains(lastJsonObject)) {
+            mediaJsonObjects.add(lastJsonObject!!)
+            Log.d("SplitJsonObject", lastJsonObject.toString())
+        }
+    }
+
+    return mediaJsonObjects
+}
+
+
 fun parseMediaJson(jsonResponse: String): Media {
-    val gson = Gson()
+
     val jsonObject = JsonParser.parseString(jsonResponse).asJsonObject
 
     val type = jsonObject.get("type")?.asString ?: ""
@@ -203,6 +244,86 @@ fun parseStreamingInfo(streamingInfoJsonObject: JsonObject): StreamingInfo {
     return StreamingInfo(us = usServices)
 }
 
+fun paginationInfoParser(response: String): PaginationInfo {
+    val jsonObject = JsonParser.parseString(response).asJsonObject
+    val hasMoreJsonElement = jsonObject.getAsJsonPrimitive("hasMore")
+    val nextCursorJsonElement = jsonObject.getAsJsonPrimitive("nextCursor")
+    val hasMore = hasMoreJsonElement?.asBoolean ?: false
+    val nextCursor = nextCursorJsonElement?.asString ?: ""
+    return PaginationInfo(hasMore, nextCursor)
+}
+
+fun parseAndInsertMedia(response: String, context: Context) {
+    val mediaJsonObjects = splitMediaJson(response)
+    var paginationInfo = PaginationInfo(null, null) // Default pagination info
+
+    mediaJsonObjects.forEachIndexed { index, mediaJsonObject ->
+        if (!isValidMediaObject(mediaJsonObject)) {
+            return@forEachIndexed
+        }
+        val media = parseMediaJson(mediaJsonObject.toString())
+
+        val mediaEntity = Media(
+            type = media.type,
+            title = media.title,
+            overview = media.overview,
+            cast = media.cast,
+            year = media.year,
+            imdbId = media.imdbId,
+            tmdbId = media.tmdbId,
+            originalTitle = media.originalTitle,
+            genres = media.genres,
+            directors = media.directors,
+            creators = media.creators,
+            status = media.status,
+            seasonCount = media.seasonCount,
+            episodeCount = media.episodeCount,
+            seasons = media.seasons
+        )
+
+        val streamingInfoJsonObject = mediaJsonObject.getAsJsonObject("streamingInfo")
+        val usServicesList = parseStreamingInfo(streamingInfoJsonObject).us
+        val serviceList = mutableListOf<StreamingService>()
+
+        for (service in usServicesList) {
+            serviceList.add(
+                StreamingService(
+                    service = service.service,
+                    streamingType = service.streamingType,
+                    quality = service.quality,
+                    link = service.link,
+                    videoLink = service.videoLink,
+                    audios = service.audios,
+                    subtitles = service.subtitles,
+                    availableSince = service.availableSince
+                )
+            )
+        }
+
+        val dbHelper = MediaDBHelper(context.applicationContext)
+
+        if (index == mediaJsonObjects.size - 1) {
+            paginationInfo = paginationInfoParser(response)
+            dbHelper.insertRow(mediaEntity, usServicesList, paginationInfo)
+        } else {
+            dbHelper.insertRow(mediaEntity, usServicesList, paginationInfo)
+        }
+    }
+}
 
 
+private fun isValidMediaObject(jsonObject: JsonObject): Boolean {
+    // Check if the JSON object contains all necessary fields for a complete media object
+    return jsonObject.has("type") && jsonObject.has("title") && jsonObject.has("overview")
+    // Add more checks for other required fields if necessary
+}
 
+
+fun getLastJsonObject(response: String): JsonObject? {
+    val mediaJsonObjects = splitMediaJson(response)
+    return if (mediaJsonObjects.isNotEmpty()) {
+        mediaJsonObjects.lastOrNull()
+    } else {
+        null
+    }
+}

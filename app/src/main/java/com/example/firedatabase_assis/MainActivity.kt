@@ -8,9 +8,11 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.firedatabase_assis.databinding.ActivityMainBinding
 
+
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -18,7 +20,8 @@ class MainActivity : AppCompatActivity() {
 
         var dbhelp = DB_class(applicationContext)
         var db = dbhelp.writableDatabase
-        JobScheduler.scheduleJob(this)
+
+
         binding.btnrgs.setOnClickListener {
             var name = binding.ed1.text.toString()
             var username = binding.ed2.text.toString()
@@ -38,6 +41,8 @@ class MainActivity : AppCompatActivity() {
                     binding.ed1.text.clear()
                     binding.ed2.text.clear()
                     binding.ed3.text.clear()
+                    val intent = Intent(this, HomePage::class.java)
+                    startActivity(intent)
                 } else {
                     var ad = AlertDialog.Builder(this)
                     ad.setTitle("Message")
@@ -57,4 +62,5 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
     }
+
 }
