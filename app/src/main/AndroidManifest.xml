@@ -5,7 +5,6 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -14,12 +13,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Firedatabase_assis">
         <activity
+            android:name=".PreferencesActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat" />
+        <activity
             android:name=".welcome_window"
             android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="false" />
-
         <activity
             android:name=".login_form"
             android:exported="true">
@@ -29,11 +31,28 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat">
+
+        </activity>
+        <activity
+            android:name=".TimeActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat">
+
+        </activity>
+        <activity
+            android:name=".UserActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat">
+
+        </activity>
 
         <service
             android:name=".StreamingAPI"
             android:permission="android.permission.BIND_JOB_SERVICE" />
-
     </application>
 
 </manifest>

@@ -15,6 +15,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
         var dbhelp = DB_class(applicationContext)
         var db = dbhelp.writableDatabase
         JobScheduler.scheduleJob(this)

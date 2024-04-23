@@ -2,24 +2,33 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
-      <entry key="StreamingAPI">
+      <entry key="PreferencesActivity">
+        <State />
+      </entry>
+      <entry key="SettingsActivity">
+        <State />
+      </entry>
+      <entry key="TimeActivity">
+        <State />
+      </entry>
+      <entry key="UserActivity">
+        <State />
+      </entry>
+      <entry key="app">
         <State>
-          <targetSelectedWithDropDown>
+          <runningDeviceTargetSelectedWithDropDown>
             <Target>
-              <type value="QUICK_BOOT_TARGET" />
+              <type value="RUNNING_DEVICE_TARGET" />
               <deviceKey>
                 <Key>
-                  <type value="VIRTUAL_DEVICE_PATH" />
-                  <value value="C:\Users\ayoon\.android\avd\Pixel_Fold_API_33.avd" />
+                  <type value="SERIAL_NUMBER" />
+                  <value value="adb-R5CT13B6ERW-lZZQW3._adb-tls-connect._tcp" />
                 </Key>
               </deviceKey>
             </Target>
-          </targetSelectedWithDropDown>
-          <timeTargetWasSelectedWithDropDown value="2024-04-13T00:09:26.233729Z" />
+          </runningDeviceTargetSelectedWithDropDown>
+          <timeTargetWasSelectedWithDropDown value="2024-04-17T08:50:09.931835100Z" />
         </State>
-      </entry>
-      <entry key="app">
-        <State />
       </entry>
       <entry key="login_form">
         <State />
