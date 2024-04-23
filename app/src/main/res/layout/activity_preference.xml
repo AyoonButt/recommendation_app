@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".PreferencesActivity">
+
+
+     <TextView
+         android:id="@+id/textpref"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:text="Select Preferences"
+         android:textSize="30sp"
+         android:textStyle="bold"
+         android:textColor="@color/black"
+         android:layout_gravity="center"/>
+
+     <LinearLayout
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:background="@drawable/lightor_backgroung"
+         android:padding="15dp"
+         android:orientation="vertical"
+         android:layout_marginTop="30dp">
+          <RelativeLayout
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content">
+               <CheckBox
+                   android:id="@+id/checkBox"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:text="Action"
+                   android:layout_marginTop="10dp"/>
+
+          </RelativeLayout>
+          <RelativeLayout
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content">
+
+               <CheckBox
+                   android:id="@+id/checkBox2"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:text="Comedy"
+                   android:layout_marginTop="10dp"/>
+          </RelativeLayout>
+
+          <RelativeLayout
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content">
+
+               <CheckBox
+                   android:id="@+id/checkBox3"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:text="Drama"
+                   android:layout_marginTop="10dp"/>
+
+          </RelativeLayout>
+
+          <RelativeLayout
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content">
+
+               <CheckBox
+                   android:id="@+id/checkBox4"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:text="Fantasy"
+                   android:layout_marginTop="10dp"/>
+
+          </RelativeLayout>
+          <RelativeLayout
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content">
+
+               <CheckBox
+                   android:id="@+id/checkBox5"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:text="Horror"
+                   android:layout_marginTop="10dp"/>
+
+          </RelativeLayout>
+          <RelativeLayout
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content">
+
+               <CheckBox
+                   android:id="@+id/checkBox6"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:text="Mystery"
+                   android:layout_marginTop="10dp"/>
+
+          </RelativeLayout>
+
+          <RelativeLayout
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content">
+
+               <CheckBox
+                   android:id="@+id/checkBox7"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:text="Thriller"
+                   android:layout_marginTop="10dp"/>
+
+          </RelativeLayout>
+
+          <RelativeLayout
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content">
+
+               <CheckBox
+                   android:id="@+id/checkBox8"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:text="Romance"
+                   android:layout_marginTop="10dp"/>
+
+          </RelativeLayout>
+
+     </LinearLayout>
+
+</LinearLayout>
