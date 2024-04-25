@@ -1,6 +1,6 @@
 package com.example.firedatabase_assis
 
-import Media
+
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -12,108 +12,104 @@ import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import com.google.gson.JsonParser
+import kotlinx.coroutines.*
 import org.json.JSONException
-import parseMediaJson
-import parseStreamingInfo
 
 
 class StreamingAPI : AppCompatActivity() {
 
-    private lateinit var requestQueue: RequestQueue
-    private val handler = Handler(Looper.getMainLooper())
-    private var requestCount = 0
-    private val maxRequestsPerDay = 90
-    val timer = Timer()
 
-    
+    private lateinit var requestQueue: RequestQueue
+    private var requestCount = 0
+    private var schedulerCount = 0
+    private val maxRequestsPerDay = 90
+    private val handler = Handler(Looper.getMainLooper())
+    private val minYear = 1995
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_welcome_window)
+
+        setContentView(R.layout.activity_homepage)
+
 
         requestQueue = Volley.newRequestQueue(this)
 
-
         val netflix = "https://streaming-availability.p.rapidapi.com/search/filters" +
                 "?services=netflix&country=us&output_language=en" +
-                "&order_by=original_title&genres_relation=and&year_min=%d" +
+                "&order_by=original_title&genres_relation=and&year_min=$minYear" +
                 "&show_type=all"
 
         val prime = "https://streaming-availability.p.rapidapi.com/search/filters" +
                 "?services=prime.subscription&country=us&output_language=en" +
-                "&order_by=original_title&genres_relation=and&year_min=%d" +
+                "&order_by=original_title&genres_relation=and&year_min=$minYear" +
                 "&show_type=all"
 
         val hboMax = "https://streaming-availability.p.rapidapi.com/search/filters" +
                 "?services=hbo,hulu.addon.hbo,prime.addon.hbomaxus&country=us&output_language=en" +
-                "&order_by=original_title&genres_relation=and&year_min=%d" +
+                "&order_by=original_title&genres_relation=and&year_min=$minYear" +
                 "&show_type=all"
 
         val hulu = "https://streaming-availability.p.rapidapi.com/search/filters" +
-                "?services=prime.subscription&country=us&output_language=en" +
-                "&order_by=original_title&genres_relation=and&year_min=%d" +
+                "?services=hulu.subscription,hulu.addon.hbo&country=us&output_language=en" +
+                "&order_by=original_title&genres_relation=and&year_min=$minYear" +
                 "&show_type=all"
 
         val apple = "https://streaming-availability.p.rapidapi.com/search/filters" +
-                "?services=prime.subscription&country=us&output_language=en" +
-                "&order_by=original_title&genres_relation=and&year_min=%d" +
+                "?services=apple.addon&country=us&output_language=en" +
+                "&order_by=original_title&genres_relation=and&year_min=$minYear" +
                 "&show_type=all"
 
         val peacock = "https://streaming-availability.p.rapidapi.com/search/filters" +
-                "?services=prime.subscription&country=us&output_language=en" +
-                "&order_by=original_title&genres_relation=and&year_min=%d" +
+                "?services=peacock.free&country=us&output_language=en" +
+                "&order_by=original_title&genres_relation=and&year_min=$minYear" +
                 "&show_type=all"
 
 
-        val startTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"))
-        startTime.set(Calendar.HOUR_OF_DAY, 0)
-        startTime.set(Calendar.MINUTE, 0)
-        startTime.set(Calendar.SECOND, 0)
-        startTime.set(Calendar.MILLISECOND, 0)
+        scheduleRequest(netflix, 1995)
+        scheduleRequest(prime, 1995)
+        scheduleRequest(hboMax, 1995)
+        scheduleRequest(hulu, 1995)
+        scheduleRequest(apple, 1995)
+        scheduleRequest(peacock, 1995)
 
-        timer.scheduleAtFixedRate(object : TimerTask() {
-            override fun run() {
-                // Call your functions here
-                scheduleRequest(netflix, 1995)
-                scheduleRequest(prime, 1995)
-                scheduleRequest(hboMax, 1995)
-                scheduleRequest(hulu, 1995)
-                scheduleRequest(apple, 1995)
-                scheduleRequest(peacock, 1995)
+        // Reset request counter to zero after each day
+        requestCount = 0
 
-                // Reset request counter to zero after each day
-                requestCount = 0
-            }
-        }, startTime.time, 24 * 60 * 60 * 1000) // Run every 24 hourstTime.time, 24 * 60 * 60 * 1000) // Run every 24 hours
-
-
-
-    
-
-    private fun scheduleRequest(url: String, minYear: Int) {
-        if (requestCount < maxRequestsPerDay) {
-            requestCount++
-            handler.postDelayed({
-                makeRequest(
-                    "$url&timestamp=${System.currentTimeMillis()}",
-                    handler,
-                    minYear,
-                    300000
-                )
-            }, 300000)
-        } else {
-            Log.d("StreamingAPI", "Max requests per day reached")
-        }
     }
 
 
+    private fun scheduleRequest(url: String, minYear: Int) {
+
+        schedulerCount++
+
+        if (schedulerCount == 6) {
+            schedulerCount = 0
+        }
+
+        handler.postDelayed({
+            makeRequest(
+                "$url&timestamp=${System.currentTimeMillis()}",
+                handler,
+                minYear,
+                30000
+            )
+        }, 30000)
+
+    }
+
     private fun makeRequest(
-        url: String,
-        handler: Handler,
-        minYear: Int,
-        delayMillis: Long = 300000
+        url: String, handler: Handler, minYear: Int, delayMillis: Long = 30000
     ) {
+
+        if (!shouldScheduleRequest()) {
+            Log.d("StreamingAPI", "Max requests per day reached")
+            return
+        }
+
         requestCount++
+
+
         val stringRequest = object : StringRequest(
 
             Method.GET, url,
@@ -132,66 +128,37 @@ class StreamingAPI : AppCompatActivity() {
 
 
                 try {
-                    // Parse the response into Media object
-                    val media = parseMediaJson(response)
-                    // Create MediaEntity from Media object
-                    val mediaEntity = Media(
-                        type = media.type,
-                        title = media.title,
-                        overview = media.overview,
-                        cast = media.cast,
-                        year = media.year,
-                        imdbId = media.imdbId,
-                        tmdbId = media.tmdbId,
-                        originalTitle = media.originalTitle,
-                        genres = media.genres,
-                        directors = media.directors,
-                        creators = media.creators,
-                        status = media.status,
-                        seasonCount = media.seasonCount,
-                        episodeCount = media.episodeCount,
-                        seasons = media.seasons
-                    )
-                    
-                    // Convert the response string to a JsonObject
-                    val itemObject = JsonParser.parseString(response).asJsonObject
-                    // Access the "items" array from the jsonObject
-                    val itemsArray = itemObject.getAsJsonArray("items")
+
+                    parseAndInsertMedia(response, applicationContext)
+
+                    getLastJsonObject(response)
 
 
-                    itemsArray?.forEach { item ->
-                        // Access the "streamingInfo" object from each item
-                        val streamingInfoJsonObject =
-                            item.asJsonObject.getAsJsonObject("streamingInfo")
-
-                        // Parse streaming info
-                        val usServices = parseStreamingInfo(streamingInfoJsonObject)
-
-                        val dbHelper = MediaDBHelper(this)
-
-                        dbHelper.insertRow(mediaEntity, usServices.us)
-
-
-                    }
-
-
-                    // Convert the response string to a JsonObject
                     val jsonObject = JsonParser.parseString(response).asJsonObject
                     val hasMore = jsonObject.get("hasMore").asBoolean
+
                     if (hasMore) {
-                        val nextCursor = jsonObject.get("nextCursor").asString
-                        // Delay before making the next request to avoid rate limiting
+                        val nextCursor = jsonObject?.get("nextCursor")?.asString
+
+
+                        // Schedule the delayed request using coroutines
                         handler.postDelayed(
                             {
                                 makeRequest(
                                     "$url&cursor=$nextCursor",
                                     Handler(Looper.getMainLooper()),
-                                    minYear, delayMillis + 300000
+                                    minYear,
+                                    delayMillis + 30000
                                 )
                             },
                             delayMillis
                         ) // Delay of 5 minutes (1000 milliseconds)
                     }
+
+
+
+
+
 
                     handleResponse(response, url, minYear)
 
@@ -200,6 +167,7 @@ class StreamingAPI : AppCompatActivity() {
                     e.printStackTrace()
                 }
             },
+
             Response.ErrorListener { error -> Log.e("VolleyError", error.toString()) }) {
 
             @Throws(AuthFailureError::class)
@@ -224,6 +192,8 @@ class StreamingAPI : AppCompatActivity() {
         requestQueue.add(stringRequest)
     }
 
+
+    // handle the case when no responses can be found and store nextCursor for use
     private fun handleResponse(response: String, url: String, minYear: Int) {
         // Parse the response and check if hasMore is false
         val jsonObject = JsonParser.parseString(response).asJsonObject
@@ -231,11 +201,76 @@ class StreamingAPI : AppCompatActivity() {
         if (!hasMore) {
             // If no more responses available, adjust minYear to go back 5 years
             val newMinYear = minYear - 5
-            // Reschedule the request with the adjusted minYear
             scheduleRequest(url, newMinYear)
-        } else {
-            // If hasMore is true, continue with pagination or other processing
+
         }
+
     }
+
+
+    private fun shouldScheduleRequest(): Boolean {
+        return requestCount < maxRequestsPerDay
+    }
+
+
 }
 
+
+/*  If I were to convert to a service
+
+fun getServiceName(url: String): String {
+        val servicesStartIndex = url.indexOf("services=")
+        if (servicesStartIndex != -1) {
+            val servicesEndIndex = url.indexOf("&", startIndex = servicesStartIndex)
+            if (servicesEndIndex != -1) {
+                val servicesSubstring = url.substring(servicesStartIndex + 9, servicesEndIndex)
+                return when {
+                    servicesSubstring.contains("netflix") -> "netflix"
+                    servicesSubstring.contains("prime.subscription") -> "prime"
+                    servicesSubstring.contains("hbo,hulu.addon.hbo,prime.addon.hbomaxus") -> "hbo"
+                    servicesSubstring.contains("hulu.subscription,hulu.addon.hbo") -> "hulu"
+                    servicesSubstring.contains("apple.addon") -> "apple"
+                    servicesSubstring.contains("peacock.free") -> "peacock"
+                    else -> ""
+                }
+            }
+        }
+        return ""
+    }
+
+
+if (schedulerCount != 0 && !storedCursors) {
+                            val streamingService = getServiceName(url)
+                            val mostRecentCursor =
+                                dbHelper.getMostRecentNextCursor(streamingService)
+
+                            if (mostRecentCursor != null) {
+                                handler.postDelayed(
+                                    {
+                                        makeRequest(
+                                            "$url&cursor=$mostRecentCursor",
+                                            Handler(Looper.getMainLooper()),
+                                            minYear,
+                                            delayMillis + 30000
+                                        )
+                                    },
+                                    delayMillis
+                                )
+                            }
+                        } else {
+else {
+    // Schedule the next request without considering the cursor
+    handler.postDelayed(
+        {
+            makeRequest(
+                url,
+                Handler(Looper.getMainLooper()),
+                minYear,
+                delayMillis + 30000
+            )
+        },
+        delayMillis
+    ) // Delay of 5 minutes (1000 milliseconds)
+}
+
+ */
