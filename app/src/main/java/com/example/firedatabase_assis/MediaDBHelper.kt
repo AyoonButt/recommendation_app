@@ -59,13 +59,13 @@ class MediaDBHelper(context: Context) :
                 + "$COLUMN_SUBTITLES TEXT,"
                 + "$COLUMN_AVAILABLE_SINCE TEXT,"
                 + "$COLUMN_YEAR INTEGER,"
-                + "$COLUMN_IMDB_ID TEXT,"
+                + "$COLUMN_IMDB_ID TEXT UNIQUE,"
                 + "$COLUMN_TMDB_ID INTEGER ,"
                 + "$COLUMN_GENRES TEXT,"
                 + "$COLUMN_DIRECTORS TEXT,"
                 + "$COLUMN_CREATORS TEXT,"
                 + "$COLUMN_STATUS TEXT,"
-                + "$COLUMN_SEASON_COUNT INTEGER UNIQUE,"
+                + "$COLUMN_SEASON_COUNT INTEGER ,"
                 + "$COLUMN_EPISODE_COUNT INTEGER,"
                 + "$COLUMN_SEASONS TEXT,"
                 + "$COLUMN_HAS_MORE TEXT,"
@@ -164,14 +164,14 @@ class MediaDBHelper(context: Context) :
         return isEmpty
     }
 
-    fun printLatestRowFromDatabase(context: Context) {
+    fun getCaption(context: Context): String? {
         // Create an instance of your MediaDBHelper class
         val dbHelper = MediaDBHelper(context)
 
         // Get a readable database
         val db = dbHelper.readableDatabase
 
-        // Define a projection that specifies the columns from which to retrieve data
+        // Define the projection that specifies the columns from which to retrieve data
         val projection = arrayOf(
             COLUMN_TYPE,
             COLUMN_TITLE,
@@ -201,7 +201,7 @@ class MediaDBHelper(context: Context) :
         // Define the sorting order to get the latest row
         val sortOrder = "ROWID DESC" // Assuming ROWID represents the order of insertion
 
-        // Perform the query to retrieve the latest row
+        // Perform the query to retrieve the last row
         val cursor = db.query(
             TABLE_STREAMING_INFO, // The table name to query
             projection, // The columns to return
@@ -213,39 +213,113 @@ class MediaDBHelper(context: Context) :
             "1" // Limit to one row
         )
 
+        // Row retrieved from the database
+        var row: String? = null
+
         // Check if there is at least one row in the cursor
         if (cursor.moveToFirst()) {
-            // Iterate over the columns and print the values
-            val latestRow = StringBuilder()
+            // Iterate over the columns and append the values to the row string
+            val rowBuilder = StringBuilder()
             for (i in 0 until cursor.columnCount) {
-                latestRow.append("${cursor.getColumnName(i)}: ${cursor.getString(i)}\n")
+                rowBuilder.append("${cursor.getColumnName(i)}: ${cursor.getString(i)}\n")
             }
-            // Print the latest row
-            Log.d("LatestRow", latestRow.toString())
+            row = rowBuilder.toString()
         } else {
             // If the cursor is empty, print a message indicating no data found
-            Log.d("LatestRow", "No data found in the database.")
+            Log.d("getLastRow", "No row found in the database.")
         }
 
         // Close the cursor and the database
         cursor.close()
         db.close()
+
+        // Return the last row retrieved from the database
+        return row
     }
 
-    fun deleteRowsWithNullTypeAndService(db: SQLiteDatabase, tableName: String) {
-        // Perform the delete operation
-        val deletedRows = db.delete(tableName, "type IS NULL AND streamingType IS NULL", null)
 
-        // Check if any rows were deleted
-        if (deletedRows > 0) {
-            // Rows deleted successfully
-            println("$deletedRows rows deleted where type and streaming_service are null")
+    /* fun deleteRowsWithNullTypeAndService(db: SQLiteDatabase, tableName: String) {
+         // Perform the delete operation
+         val deletedRows = db.delete(tableName, "type IS NULL AND streamingType IS NULL", null)
+
+         // Check if any rows were deleted
+         if (deletedRows > 0) {
+             // Rows deleted successfully
+             println("$deletedRows rows deleted where type and streaming_service are null")
+         } else {
+             // No rows deleted
+             println("No rows deleted where type and streaming_service are null")
+         }
+     }
+
+     */
+
+    fun getLastImdbIdFromDatabase(context: Context): String? {
+        // Create an instance of your MediaDBHelper class
+        val dbHelper = MediaDBHelper(context)
+
+        // Get a readable database
+        val db = dbHelper.readableDatabase
+
+        // Define the column from which to retrieve IMDb ID
+        val projection = arrayOf(COLUMN_IMDB_ID)
+
+        // Define the sorting order to get the latest row
+        val sortOrder = "ROWID DESC" // Assuming ROWID represents the order of insertion
+
+        // Perform the query to retrieve the latest IMDb ID
+        val cursor = db.query(
+            TABLE_STREAMING_INFO, // The table name to query
+            projection, // The columns to return
+            null, // The columns for the WHERE clause
+            null, // The values for the WHERE clause
+            null, // Don't group the rows
+            null, // Don't filter by row groups
+            sortOrder, // The sort order
+            "1" // Limit to one row
+        )
+
+        // IMDb ID retrieved from the database
+        var imdbId: String? = null
+
+        // Check if there is at least one row in the cursor
+        if (cursor.moveToFirst()) {
+            // Retrieve the IMDb ID from the cursor
+            val columnIndex = cursor.getColumnIndex(COLUMN_IMDB_ID)
+            if (columnIndex >= 0) {
+                imdbId = cursor.getString(columnIndex)
+            } else {
+                Log.e("getColumnIndex", "Column '$COLUMN_IMDB_ID' not found in cursor")
+            }
         } else {
-            // No rows deleted
-            println("No rows deleted where type and streaming_service are null")
+            // If the cursor is empty, print a message indicating no data found
+            Log.d("getLastImdbId", "No IMDb ID found in the database.")
+        }
+
+        // Close the cursor and the database
+        cursor.close()
+        db.close()
+
+        // Return the last IMDb ID retrieved from the database
+        return imdbId
+    }
+
+
+    fun deleteRowByExternalId(context: Context, externalId: String): Boolean {
+        val dbHelper = MediaDBHelper(context)
+        val db = dbHelper.writableDatabase
+
+        return try {
+            val rowsAffected =
+                db.delete(TABLE_STREAMING_INFO, "$COLUMN_IMDB_ID = ?", arrayOf(externalId))
+            rowsAffected > 0
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        } finally {
+            db.close()
         }
     }
-
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         // Drop older table if existed
@@ -253,4 +327,5 @@ class MediaDBHelper(context: Context) :
         // Create tables again
         onCreate(db)
     }
+
 }

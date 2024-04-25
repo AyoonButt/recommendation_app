@@ -30,7 +30,7 @@ class StreamingAPI : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_welcome_window)
+        setContentView(R.layout.activity_homepage)
 
 
         requestQueue = Volley.newRequestQueue(this)
@@ -133,57 +133,19 @@ class StreamingAPI : AppCompatActivity() {
 
                     getLastJsonObject(response)
 
-                    val dbHelper = MediaDBHelper(applicationContext)
 
-                    val db = dbHelper.writableDatabase
-                    val tableName = "StreamingInfo"
-                    dbHelper.deleteRowsWithNullTypeAndService(db, tableName)
-
-                    val jsonObject = getLastJsonObject(response)
-                    val hasMore = jsonObject?.get("hasMore")?.asBoolean ?: false
+                    val jsonObject = JsonParser.parseString(response).asJsonObject
+                    val hasMore = jsonObject.get("hasMore").asBoolean
 
                     if (hasMore) {
                         val nextCursor = jsonObject?.get("nextCursor")?.asString
-                        val storedCursors = dbHelper.isNextCursorEmpty()
 
-                        if (schedulerCount != 0 && !storedCursors) {
-                            val streamingService = getServiceName(url)
-                            val mostRecentCursor =
-                                dbHelper.getMostRecentNextCursor(streamingService)
 
-                            if (mostRecentCursor != null) {
-                                handler.postDelayed(
-                                    {
-                                        makeRequest(
-                                            "$url&cursor=$mostRecentCursor",
-                                            Handler(Looper.getMainLooper()),
-                                            minYear,
-                                            delayMillis + 30000
-                                        )
-                                    },
-                                    delayMillis
-                                )
-                            }
-                        } else {
-                            // Schedule the delayed request using coroutines
-                            handler.postDelayed(
-                                {
-                                    makeRequest(
-                                        "$url&cursor=$nextCursor",
-                                        Handler(Looper.getMainLooper()),
-                                        minYear,
-                                        delayMillis + 30000
-                                    )
-                                },
-                                delayMillis
-                            ) // Delay of 5 minutes (1000 milliseconds)
-                        }
-                    } else {
-                        // Schedule the next request without considering the cursor
+                        // Schedule the delayed request using coroutines
                         handler.postDelayed(
                             {
                                 makeRequest(
-                                    url,
+                                    "$url&cursor=$nextCursor",
                                     Handler(Looper.getMainLooper()),
                                     minYear,
                                     delayMillis + 30000
@@ -193,7 +155,8 @@ class StreamingAPI : AppCompatActivity() {
                         ) // Delay of 5 minutes (1000 milliseconds)
                     }
 
-                    dbHelper.printLatestRowFromDatabase(applicationContext)
+
+
 
 
 
@@ -244,7 +207,18 @@ class StreamingAPI : AppCompatActivity() {
 
     }
 
-    fun getServiceName(url: String): String {
+
+    private fun shouldScheduleRequest(): Boolean {
+        return requestCount < maxRequestsPerDay
+    }
+
+
+}
+
+
+/*  If I were to convert to a service
+
+fun getServiceName(url: String): String {
         val servicesStartIndex = url.indexOf("services=")
         if (servicesStartIndex != -1) {
             val servicesEndIndex = url.indexOf("&", startIndex = servicesStartIndex)
@@ -265,13 +239,38 @@ class StreamingAPI : AppCompatActivity() {
     }
 
 
-    private fun shouldScheduleRequest(): Boolean {
-        return requestCount < maxRequestsPerDay
-    }
+if (schedulerCount != 0 && !storedCursors) {
+                            val streamingService = getServiceName(url)
+                            val mostRecentCursor =
+                                dbHelper.getMostRecentNextCursor(streamingService)
 
-
+                            if (mostRecentCursor != null) {
+                                handler.postDelayed(
+                                    {
+                                        makeRequest(
+                                            "$url&cursor=$mostRecentCursor",
+                                            Handler(Looper.getMainLooper()),
+                                            minYear,
+                                            delayMillis + 30000
+                                        )
+                                    },
+                                    delayMillis
+                                )
+                            }
+                        } else {
+else {
+    // Schedule the next request without considering the cursor
+    handler.postDelayed(
+        {
+            makeRequest(
+                url,
+                Handler(Looper.getMainLooper()),
+                minYear,
+                delayMillis + 30000
+            )
+        },
+        delayMillis
+    ) // Delay of 5 minutes (1000 milliseconds)
 }
 
-
-
-
+ */

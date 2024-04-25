@@ -20,6 +20,12 @@
         <activity
             android:name=".MainActivity"
             android:exported="false" />
+        <activity
+            android:name=".HomePage"
+            android:exported="true">
+
+        </activity>
+
 
         <activity
             android:name=".login_form"
@@ -42,6 +48,7 @@
             android:theme="@style/Theme.AppCompat">
 
         </activity>
+
         <activity
             android:name=".UserActivity"
             android:exported="true"
@@ -49,9 +56,12 @@
 
         </activity>
 
-        <service
+        <activity
             android:name=".StreamingAPI"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
+            android:exported="true">
+
+        </activity>
+
 
     </application>
 
