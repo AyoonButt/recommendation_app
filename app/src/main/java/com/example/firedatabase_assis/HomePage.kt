@@ -1,6 +1,7 @@
 package com.example.firedatabase_assis
 
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -42,6 +43,30 @@ class HomePage : AppCompatActivity(), CoroutineScope {
         setContentView(binding.root)
         requestQueue = Volley.newRequestQueue(this)
         startLoop()
+
+        binding.bottomNavBar.setOnItemReselectedListener { menuItem->
+            when(menuItem.itemId) {
+                R.id.bottom_menu_home-> {
+                    /*Already on home so no activity needed*/
+                }
+                R.id.bottom_menu_explore-> {
+                    /*val intent = Intent(this, ExploreActivity::class.java)
+                    startActivity(intent)*/
+                }
+                R.id.bottom_menu_communities-> {
+                    /*val intent = Intent(this, CommunitiesActivity::class.java)
+                    startActivity(intent)*/
+                }
+                /*R.id.bottom_menu_profile-> {
+                    val intent = Intent(this, UserActivity::class.java)
+                    startActivity(intent)
+                }*/
+                R.id.bottom_menu_settings-> {
+                    val intent = Intent(this, SettingsActivity::class.java)
+                    startActivity(intent)
+                }
+            }
+        }
     }
 
     private fun startLoop() {
