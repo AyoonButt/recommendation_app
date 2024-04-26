@@ -1,6 +1,7 @@
 package com.example.firedatabase_assis
 
 
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -30,7 +31,7 @@ class StreamingAPI : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_homepage)
+        setContentView(R.layout.activity_load)
 
 
         requestQueue = Volley.newRequestQueue(this)
@@ -76,6 +77,15 @@ class StreamingAPI : AppCompatActivity() {
         // Reset request counter to zero after each day
         requestCount = 0
 
+        // Schedule the transition to Homepage activity after 30 seconds
+
+        val runnable = Runnable {
+            val intent = Intent(this, HomePage::class.java)
+            startActivity(intent)
+            finish()  // Close the WelcomeWindow activity
+        }
+        handler.postDelayed(runnable, 900)
+
     }
 
 
@@ -92,9 +102,9 @@ class StreamingAPI : AppCompatActivity() {
                 "$url&timestamp=${System.currentTimeMillis()}",
                 handler,
                 minYear,
-                30000
+                900
             )
-        }, 30000)
+        }, 900)
 
     }
 
@@ -148,7 +158,7 @@ class StreamingAPI : AppCompatActivity() {
                                     "$url&cursor=$nextCursor",
                                     Handler(Looper.getMainLooper()),
                                     minYear,
-                                    delayMillis + 30000
+                                    delayMillis + 900
                                 )
                             },
                             delayMillis

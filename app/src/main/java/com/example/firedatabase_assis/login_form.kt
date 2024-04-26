@@ -25,8 +25,8 @@ class login_form : AppCompatActivity() {
             if (rs.moveToFirst()) {
                 val name = rs.getString(rs.getColumnIndex("name"))
                 rs.close()
-                startActivity(Intent(this, HomePage::class.java))
-                
+                startActivity(Intent(this, StreamingAPI::class.java))
+
             } else {
                 var ad = AlertDialog.Builder(this)
                 ad.setTitle("Message")
