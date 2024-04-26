@@ -46,7 +46,7 @@ class HomePage : AppCompatActivity(), CoroutineScope {
 
     private fun startLoop() {
         loopJob = launch {
-            repeat(5) {
+            repeat(10) {
                 loadImageWithDelay()
                 delay(15L)
             }
