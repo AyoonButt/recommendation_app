@@ -4,10 +4,10 @@ package com.example.firedatabase_assis
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.ToggleButton
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.AuthFailureError
 import com.android.volley.Cache
@@ -20,15 +20,17 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.engine.GlideException
 import com.example.firedatabase_assis.databinding.ActivityHomepageBinding
 import kotlinx.coroutines.*
-import java.util.PriorityQueue
 import kotlin.coroutines.CoroutineContext
 
 
 class HomePage : AppCompatActivity(), CoroutineScope {
     private lateinit var binding: ActivityHomepageBinding
-    private val imageContainers: PriorityQueue<LinearLayout> =
-        PriorityQueue() // PriorityQueue to store image containers
+
+    // private val imageContainers: PriorityQueue<ImageContainerWrapper> = PriorityQueue() // Stores wrappers with priority and container data
     private lateinit var requestQueue: RequestQueue
+    private val containerTagsMap: MutableMap
+    <String, ContainerTags> = mutableMapOf()
+
 
     // Coroutine Job to handle the loop
     private var loopJob: Job? = null
@@ -44,16 +46,20 @@ class HomePage : AppCompatActivity(), CoroutineScope {
         requestQueue = Volley.newRequestQueue(this)
         startLoop()
 
-        binding.bottomNavBar.setOnItemReselectedListener { menuItem->
-            when(menuItem.itemId) {
-                R.id.bottom_menu_home-> {
+
+// move to a separate view
+        binding.bottomNavBar.setOnItemReselectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.bottom_menu_home -> {
                     /*Already on home so no activity needed*/
                 }
-                R.id.bottom_menu_explore-> {
+
+                R.id.bottom_menu_explore -> {
                     /*val intent = Intent(this, ExploreActivity::class.java)
                     startActivity(intent)*/
                 }
-                R.id.bottom_menu_communities-> {
+
+                R.id.bottom_menu_communities -> {
                     /*val intent = Intent(this, CommunitiesActivity::class.java)
                     startActivity(intent)*/
                 }
@@ -61,7 +67,7 @@ class HomePage : AppCompatActivity(), CoroutineScope {
                     val intent = Intent(this, UserActivity::class.java)
                     startActivity(intent)
                 }*/
-                R.id.bottom_menu_settings-> {
+                R.id.bottom_menu_settings -> {
                     val intent = Intent(this, SettingsActivity::class.java)
                     startActivity(intent)
                 }
@@ -109,16 +115,27 @@ class HomePage : AppCompatActivity(), CoroutineScope {
                     val imageContainer =
                         layoutInflater.inflate(R.layout.item_image_container, null) as LinearLayout
                     val imageView = imageContainer.findViewById<ImageView>(R.id.imageView)
-                    val btnLike = imageContainer.findViewById<Button>(R.id.btnLike)
-                    val btnDislike = imageContainer.findViewById<Button>(R.id.btnDislike)
+                    val btnLike = imageContainer.findViewById<ToggleButton>(R.id.btnLike)
+                    val btnDislike = imageContainer.findViewById<ToggleButton>(R.id.btnDislike)
+                    val btnSaved = imageContainer.findViewById<ToggleButton>(R.id.btnSaved)
                     val captionTextView =
                         imageContainer.findViewById<TextView>(R.id.captionTextView)
 
 
                     captionTextView.text = caption
 
+                    val serviceTag = extractStreamingService(caption)
 
 
+                    val genreTag = extractGenres(caption) //List of Strings
+
+
+
+
+
+
+                    containerTagsMap[containerLayout.id.toString()] =
+                        ContainerTags(serviceTag, genreTag)
 
                     try {
                         loadImageFromUrl(baseURL, imageView)
@@ -127,14 +144,44 @@ class HomePage : AppCompatActivity(), CoroutineScope {
                     }
 
                     // Handle like button click
-                    btnLike.setOnClickListener {
-                        // Handle like action
+                    btnLike.setOnCheckedChangeListener { buttonView, isChecked ->
+                        val containerId = containerLayout.id.toString()
+                        val containerTags =
+                            containerTagsMap[containerId] ?: ContainerTags(null, null)
+
+                        containerTags.like = isChecked // Update liked state
+
+                        // Update the containerTagsMap
+                        containerTagsMap[containerId] = containerTags
+
                     }
 
                     // Handle dislike button click
-                    btnDislike.setOnClickListener {
-                        // Handle dislike action
+                    btnDislike.setOnCheckedChangeListener { buttonView, isChecked ->
+                        val containerId = containerLayout.id.toString()
+                        val containerTags =
+                            containerTagsMap[containerId] ?: ContainerTags(null, null)
+
+                        containerTags.dislike = isChecked // Update liked state
+
+                        // Update the containerTagsMap
+                        containerTagsMap[containerId] = containerTags
+
                     }
+
+                    btnSaved.setOnCheckedChangeListener { buttonView, isChecked ->
+                        val containerId = containerLayout.id.toString()
+                        val containerTags =
+                            containerTagsMap[containerId] ?: ContainerTags(null, null)
+
+                        containerTags.saved = isChecked // Update liked state
+
+                        // Update the containerTagsMap
+                        containerTagsMap[containerId] = containerTags
+
+
+                    }
+
 
                     // Add the image container to the layout
                     containerLayout.addView(imageContainer)
