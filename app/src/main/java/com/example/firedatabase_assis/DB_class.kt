@@ -6,8 +6,8 @@ class DB_class(context: Context): SQLiteOpenHelper(context,DATABASE_NAME,null,DA
     companion object {
         private val DATABASE_VERSION = 1
         private val DATABASE_NAME = "LoginDatabase"
-        private val TABLE_CONTACTS = "user"
-        private val KEY_NAME = "name"
+        internal val TABLE_CONTACTS = "user"
+        internal val KEY_NAME = "name"
         private val KEY_UNAME = "username"
         private val KEY_PSWD = "pswd"
     }

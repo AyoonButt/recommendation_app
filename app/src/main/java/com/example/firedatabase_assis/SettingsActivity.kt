@@ -78,7 +78,7 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun backtomain(view: View){
-        val intent = Intent(this, MainActivity::class.java)
+        val intent = Intent(this, HomePage::class.java)
         startActivity(intent)
     }
 }
