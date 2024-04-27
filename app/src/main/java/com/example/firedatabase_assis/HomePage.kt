@@ -20,17 +20,16 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.engine.GlideException
 import com.example.firedatabase_assis.databinding.ActivityHomepageBinding
 import kotlinx.coroutines.*
+import java.util.PriorityQueue
 import kotlin.coroutines.CoroutineContext
 
 
 class HomePage : AppCompatActivity(), CoroutineScope {
     private lateinit var binding: ActivityHomepageBinding
-
-    // private val imageContainers: PriorityQueue<ImageContainerWrapper> = PriorityQueue() // Stores wrappers with priority and container data
+    private val imageContainers: PriorityQueue<LinearLayout> =
+        PriorityQueue() // PriorityQueue to store image containers
     private lateinit var requestQueue: RequestQueue
-    private val containerTagsMap: MutableMap
-    <String, ContainerTags> = mutableMapOf()
-
+    private val containerTagsMap: MutableMap<String, ContainerTags> = HashMap()
 
     // Coroutine Job to handle the loop
     private var loopJob: Job? = null
