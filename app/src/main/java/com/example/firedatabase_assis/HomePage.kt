@@ -1,14 +1,23 @@
 package com.example.firedatabase_assis
 
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.ToggleButton
 import androidx.appcompat.app.AppCompatActivity
-import com.example.firedatabase_assis.MediaDBHelper
+import com.android.volley.AuthFailureError
+import com.android.volley.Cache
+import com.android.volley.RequestQueue
+import com.android.volley.Response
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.engine.GlideException
 import com.example.firedatabase_assis.databinding.ActivityHomepageBinding
 import kotlinx.coroutines.*
 import java.util.PriorityQueue
@@ -19,7 +28,8 @@ class HomePage : AppCompatActivity(), CoroutineScope {
     private lateinit var binding: ActivityHomepageBinding
     private val imageContainers: PriorityQueue<LinearLayout> =
         PriorityQueue() // PriorityQueue to store image containers
-    //private lateinit var requestQueue: RequestQueue
+    private lateinit var requestQueue: RequestQueue
+    private val containerTagsMap: MutableMap<String, ContainerTags> = HashMap()
 
     // Coroutine Job to handle the loop
     private var loopJob: Job? = null
@@ -32,8 +42,36 @@ class HomePage : AppCompatActivity(), CoroutineScope {
         super.onCreate(savedInstanceState)
         binding = ActivityHomepageBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        //requestQueue = Volley.newRequestQueue(this)
+        requestQueue = Volley.newRequestQueue(this)
         startLoop()
+
+
+// move to a separate view
+        binding.bottomNavBar.setOnItemReselectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.bottom_menu_home -> {
+                    /*Already on home so no activity needed*/
+                }
+
+                R.id.bottom_menu_explore -> {
+                    /*val intent = Intent(this, ExploreActivity::class.java)
+                    startActivity(intent)*/
+                }
+
+                R.id.bottom_menu_communities -> {
+                    /*val intent = Intent(this, CommunitiesActivity::class.java)
+                    startActivity(intent)*/
+                }
+                /*R.id.bottom_menu_profile-> {
+                    val intent = Intent(this, UserActivity::class.java)
+                    startActivity(intent)
+                }*/
+                R.id.bottom_menu_settings -> {
+                    val intent = Intent(this, SettingsActivity::class.java)
+                    startActivity(intent)
+                }
+            }
+        }
     }
 
     private fun startLoop() {
@@ -62,90 +100,130 @@ class HomePage : AppCompatActivity(), CoroutineScope {
             val caption = dbHelper.getCaption(applicationContext)
 
             // Create the request
-//            val request = object : StringRequest(
-//                Method.GET,
-//                "$url$externalId?api_key=$key&external_source=$source",
-//
-//                Response.Listener { response ->
-//                    Log.d("RequestURL", "$url$externalId?external_source=$source")
-//
-//                    val poster = parseResponse(response)
-//                    val baseURL = "https://image.tmdb.org/t/p/w185$poster"
-//
-//                    // Inflate the image container layout
-//                    val imageContainer =
-//                        layoutInflater.inflate(R.layout.item_image_container, null) as LinearLayout
-//                    val imageView = imageContainer.findViewById<ImageView>(R.id.imageView)
-//                    val btnLike = imageContainer.findViewById<Button>(R.id.btnLike)
-//                    val btnDislike = imageContainer.findViewById<Button>(R.id.btnDislike)
-//                    val captionTextView =
-//                        imageContainer.findViewById<TextView>(R.id.captionTextView)
-//
-//
-//                    captionTextView.text = caption
-//
-//
-//
-//
-//                    try {
-//                        loadImageFromUrl(baseURL, imageView)
-//                    } catch (e: GlideException) {
-//                        e.logRootCauses("GlideException")
-//                    }
-//
-//                    // Handle like button click
-//                    btnLike.setOnClickListener {
-//                        // Handle like action
-//                    }
-//
-//                    // Handle dislike button click
-//                    btnDislike.setOnClickListener {
-//                        // Handle dislike action
-//                    }
-//
-//                    // Add the image container to the layout
-//                    containerLayout.addView(imageContainer)
-//                },
-//                Response.ErrorListener { error ->
-//                    // Handle error
-//                }) {
-//                @Throws(AuthFailureError::class)
-//                override fun getHeaders(): Map<String, String> {
-//                    val headers = HashMap<String, String>()
-//                    headers["accept"] = "application/json"
-//                    headers["Authorization"] = "Bearer $token"
-//                    return headers
-//                }
-//
-//                override fun getCacheEntry(): Cache.Entry? {
-//                    return null
-//                }
-//            }
-//
-//            // Add the request to the request queue
-//            requestQueue.add(request)
-//            Log.d("Volley", "Added request to queue")
-//
-//            val last = dbHelper.getLastImdbIdFromDatabase(this@HomePage)
-//            if (last != null) {
-//                dbHelper.deleteRowByExternalId(this@HomePage, last)
-//            }
-//        }
-//    }
-//
-//    private fun loadImageFromUrl(url: String, imageView: ImageView) {
-//        Glide.with(imageView)
-//            .load(url)
-//            .diskCacheStrategy(DiskCacheStrategy.NONE)
-//            .centerCrop()
-//            .placeholder(R.drawable.lotr) // Placeholder image while loading
-//            .into(imageView)
-//
-//    }
-//
-//    override fun onDestroy() {
-//        super.onDestroy()
-//        loopJob?.cancel() // Cancel the loop job when the activity is destroyed
+            val request = object : StringRequest(
+                Method.GET,
+                "$url$externalId?api_key=$key&external_source=$source",
+
+                Response.Listener { response ->
+                    Log.d("RequestURL", "$url$externalId?external_source=$source")
+
+                    val poster = parseResponse(response)
+                    val baseURL = "https://image.tmdb.org/t/p/w185$poster"
+
+                    // Inflate the image container layout
+                    val imageContainer =
+                        layoutInflater.inflate(R.layout.item_image_container, null) as LinearLayout
+                    val imageView = imageContainer.findViewById<ImageView>(R.id.imageView)
+                    val btnLike = imageContainer.findViewById<ToggleButton>(R.id.btnLike)
+                    val btnDislike = imageContainer.findViewById<ToggleButton>(R.id.btnDislike)
+                    val btnSaved = imageContainer.findViewById<ToggleButton>(R.id.btnSaved)
+                    val captionTextView =
+                        imageContainer.findViewById<TextView>(R.id.captionTextView)
+
+
+                    captionTextView.text = caption
+
+                    val serviceTag = extractStreamingService(caption)
+
+
+                    val genreTag = extractGenres(caption) //List of Strings
+
+
+
+
+
+
+                    containerTagsMap[containerLayout.id.toString()] =
+                        ContainerTags(serviceTag, genreTag)
+
+                    try {
+                        loadImageFromUrl(baseURL, imageView)
+                    } catch (e: GlideException) {
+                        e.logRootCauses("GlideException")
+                    }
+
+                    // Handle like button click
+                    btnLike.setOnCheckedChangeListener { buttonView, isChecked ->
+                        val containerId = containerLayout.id.toString()
+                        val containerTags =
+                            containerTagsMap[containerId] ?: ContainerTags(null, null)
+
+                        containerTags.like = isChecked // Update liked state
+
+                        // Update the containerTagsMap
+                        containerTagsMap[containerId] = containerTags
+
+                    }
+
+                    // Handle dislike button click
+                    btnDislike.setOnCheckedChangeListener { buttonView, isChecked ->
+                        val containerId = containerLayout.id.toString()
+                        val containerTags =
+                            containerTagsMap[containerId] ?: ContainerTags(null, null)
+
+                        containerTags.dislike = isChecked // Update liked state
+
+                        // Update the containerTagsMap
+                        containerTagsMap[containerId] = containerTags
+
+                    }
+
+                    btnSaved.setOnCheckedChangeListener { buttonView, isChecked ->
+                        val containerId = containerLayout.id.toString()
+                        val containerTags =
+                            containerTagsMap[containerId] ?: ContainerTags(null, null)
+
+                        containerTags.saved = isChecked // Update liked state
+
+                        // Update the containerTagsMap
+                        containerTagsMap[containerId] = containerTags
+
+
+                    }
+
+
+                    // Add the image container to the layout
+                    containerLayout.addView(imageContainer)
+                },
+                Response.ErrorListener { error ->
+                    // Handle error
+                }) {
+                @Throws(AuthFailureError::class)
+                override fun getHeaders(): Map<String, String> {
+                    val headers = HashMap<String, String>()
+                    headers["accept"] = "application/json"
+                    headers["Authorization"] = "Bearer $token"
+                    return headers
+                }
+
+                override fun getCacheEntry(): Cache.Entry? {
+                    return null
+                }
+            }
+
+            // Add the request to the request queue
+            requestQueue.add(request)
+            Log.d("Volley", "Added request to queue")
+
+            val last = dbHelper.getLastImdbIdFromDatabase(this@HomePage)
+            if (last != null) {
+                dbHelper.deleteRowByExternalId(this@HomePage, last)
+            }
         }
+    }
+
+    private fun loadImageFromUrl(url: String, imageView: ImageView) {
+        Glide.with(imageView)
+            .load(url)
+            .diskCacheStrategy(DiskCacheStrategy.NONE)
+            .centerCrop()
+            .placeholder(R.drawable.lotr) // Placeholder image while loading
+            .into(imageView)
+
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        loopJob?.cancel() // Cancel the loop job when the activity is destroyed
     }
 }

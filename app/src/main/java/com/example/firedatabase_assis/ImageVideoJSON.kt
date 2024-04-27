@@ -2,6 +2,7 @@ package com.example.firedatabase_assis
 
 import org.json.JSONException
 import org.json.JSONObject
+import java.util.regex.Pattern
 
 fun parseResponse(jsonString: String): String? {
     var posterPath: String? = null
@@ -37,3 +38,45 @@ fun parseResponse(jsonString: String): String? {
 
     return posterPath
 }
+
+fun extractStreamingService(text: String): String? {
+
+    // Define regex pattern to extract streaming service
+    val streamingServiceRegex = Pattern.compile("streamingService: (.*?)$", Pattern.MULTILINE)
+
+    // Find streaming service using regex
+    val streamingServiceMatcher = streamingServiceRegex.matcher(text)
+    if (!streamingServiceMatcher.find()) {
+        return null  // Return null if no streaming service found
+    }
+
+    // Extract streaming service name from the matched string
+
+    return streamingServiceMatcher.group(1)?.trim()
+}
+
+fun extractGenres(text: String): List<String> {
+
+
+    // Define regex pattern to extract genres
+    val genreRegex = Pattern.compile("genres: \\[(.*?)\\]", Pattern.DOTALL)
+
+    // Find genres using regex
+    val genreMatcher = genreRegex.matcher(text)
+    if (!genreMatcher.find()) {
+        return emptyList()  // Return empty list if no genres found
+    }
+
+    // Extract genres from the matched string
+    val genres = genreMatcher.group(1).split(", ").map { it.trim() }
+
+    return genres
+}
+
+data class ContainerTags(
+    val service: String?,
+    val genre: List<String>?,
+    var like: Boolean = false,
+    var dislike: Boolean = false,
+    var saved: Boolean = false
+)

@@ -51,7 +51,7 @@
             android:layout_height="50dp"
             android:layout_marginTop="35dp"
             android:background="@drawable/input_style"
-            android:hint="Enter passowrd"
+            android:hint="Enter password"
             android:inputType="textPassword"
             android:drawableRight="@drawable/ic_baseline_visibility_24"
             android:paddingRight="20dp"
