@@ -11,9 +11,20 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Firedatabase_assis">
         <activity
+            android:name=".QuestionsActivity"
+            android:exported="true"
+            android:label="@string/title_activity_questions"
+            android:theme="@style/Theme.Firedatabase_assis.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".PreferencesActivity"
             android:exported="true"
-            android:theme="@style/Theme.AppCompat" />
+            android:theme="@style/Theme.AppCompat.DayNight" />
         <activity
             android:name=".welcome_window"
             android:exported="false" />
@@ -22,11 +33,7 @@
             android:exported="false" />
         <activity
             android:name=".HomePage"
-            android:exported="true">
-
-        </activity>
-
-
+            android:exported="true"></activity>
         <activity
             android:name=".login_form"
             android:exported="true">
@@ -39,30 +46,19 @@
         <activity
             android:name=".SettingsActivity"
             android:exported="true"
-            android:theme="@style/Theme.AppCompat">
-
-        </activity>
+            android:theme="@style/Theme.AppCompat.DayNight"></activity>
         <activity
             android:name=".TimeActivity"
             android:exported="true"
-            android:theme="@style/Theme.AppCompat">
-
-        </activity>
-
+            android:theme="@style/Theme.AppCompat.DayNight"></activity>
         <activity
             android:name=".UserActivity"
             android:exported="true"
-            android:theme="@style/Theme.AppCompat">
+            android:theme="@style/Theme.AppCompat.DayNight"></activity>
 
-        </activity>
-
-        <activity
+        <service
             android:name=".StreamingAPI"
-            android:exported="true">
-
-        </activity>
-
-
+            android:exported="true"></service>
     </application>
 
 </manifest>

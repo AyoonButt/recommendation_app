@@ -40,38 +40,26 @@ class SettingsActivity : AppCompatActivity() {
             backtomain(it)
         }
 
-        sharedPreferences = getSharedPreferences("Settings", Context.MODE_PRIVATE)
+        sharedPreferences = getSharedPreferences("NighModeSett", Context.MODE_PRIVATE)
         nightModeSwitch = findViewById<SwitchCompat>(R.id.nightmode)
+        val editor = sharedPreferences.edit()
 
-        nightModeSwitch.isChecked = isNightModeOn()
+        nightModeSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
 
-        if(isNightModeOn())
-        {
-            setTheme(R.style.Theme_Firedatabase_assis)
-        }
-        else
-        {
-            setTheme(R.style.Theme_Firedatabase_assis)
-        }
-
-        nightModeSwitch.setOnCheckedChangeListener { _, isChecked ->
-
-        sharedPreferences.edit().putBoolean("nightMode", isChecked).apply()
-
-            if (isChecked) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-
-            } else {
+            if(!isChecked)
+            {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-
+                editor.putBoolean("night",false)
+                editor.apply()
             }
-            recreate()
+            else
+            {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                editor.putBoolean("night", true)
+                editor.apply()
+            }
         }
 
-    }
-
-    private fun isNightModeOn(): Boolean{
-        return sharedPreferences.getBoolean("nightMode",false)
     }
 
     private fun openTime (view: View){
