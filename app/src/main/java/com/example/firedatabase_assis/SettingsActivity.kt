@@ -10,7 +10,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SwitchCompat
 import com.example.firedatabase_assis.databinding.ActivitySettingsBinding
-import com.example.firedatabase_assis.databinding.ActivityUserBinding
 
 
 class SettingsActivity : AppCompatActivity() {
@@ -23,26 +22,31 @@ class SettingsActivity : AppCompatActivity() {
         bind = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(bind.root)
 
-        var value=intent.getStringExtra("name")
-        bind.DisplayUsername.text=value
+        var value = intent.getStringExtra("name")
+        bind.DisplayUsername.text = value
 
         val btTime = findViewById<Button>(R.id.btTime)
-        btTime.setOnClickListener(){
+        btTime.setOnClickListener {
             openTime(it)
         }
 
         val edituser = findViewById<Button>(R.id.Edituser)
-        edituser.setOnClickListener(){
+        edituser.setOnClickListener {
             openUser(it)
         }
 
+        val subscriptions = findViewById<Button>(R.id.btSubscriptions)
+        subscriptions.setOnClickListener {
+            openSubscriptions(it)
+        }
+
         val preferences = findViewById<Button>(R.id.btPreferences)
-        preferences.setOnClickListener(){
+        preferences.setOnClickListener {
             openPreferences(it)
         }
 
         val back_to_main = findViewById<Button>(R.id.backSettings)
-        back_to_main.setOnClickListener(){
+        back_to_main.setOnClickListener {
             backtomain(it)
         }
 
@@ -52,14 +56,11 @@ class SettingsActivity : AppCompatActivity() {
 
         nightModeSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
 
-            if(!isChecked)
-            {
+            if (!isChecked) {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                editor.putBoolean("night",false)
+                editor.putBoolean("night", false)
                 editor.apply()
-            }
-            else
-            {
+            } else {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
                 editor.putBoolean("night", true)
                 editor.apply()
@@ -68,22 +69,27 @@ class SettingsActivity : AppCompatActivity() {
 
     }
 
-    private fun openTime (view: View){
-        val intent = Intent(this,TimeActivity::class.java)
+    private fun openTime(view: View) {
+        val intent = Intent(this, TimeActivity::class.java)
         startActivity(intent)
     }
 
-    private fun openUser(view: View){
-        val intent =Intent(this,UserActivity::class.java)
+    private fun openUser(view: View) {
+        val intent = Intent(this, UserActivity::class.java)
         startActivity(intent)
     }
 
-    private fun openPreferences(view: View){
-        val intent = Intent(this,PreferencesActivity::class.java)
+    private fun openPreferences(view: View) {
+        val intent = Intent(this, GenresActivity::class.java)
         startActivity(intent)
     }
 
-    private fun backtomain(view: View){
+    private fun openSubscriptions(view: View) {
+        val intent = Intent(this, SubscriptionsActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun backtomain(view: View) {
         val intent = Intent(this, HomePage::class.java)
         startActivity(intent)
     }

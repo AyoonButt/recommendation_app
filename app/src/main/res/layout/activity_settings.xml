@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -81,7 +80,7 @@
                 android:paddingEnd="30dp"
                 android:text="Edit Profile"
                 android:textColor="@color/black"
-                android:id="@+id/Edituser"/>
+                android:id="@+id/Edituser" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -215,12 +214,13 @@
                         android:textColor="@color/black"
                         android:textStyle="normal" />
 
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                    <Button
+                        android:id="@+id/btSecurity"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
                         android:layout_alignParentEnd="true"
-                        android:layout_centerVertical="true"
-                        android:src="@drawable/arrow_forward" />
+                        android:background="@drawable/arrow_forward"
+                        android:padding="11dp" />
 
                 </RelativeLayout>
                 <!--Time Zone-->
@@ -274,16 +274,18 @@
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
                         android:layout_toEndOf="@id/genre"
-                        android:text="Genre"
+                        android:text="My Subscriptions"
                         android:textColor="@color/black"
                         android:textStyle="normal" />
 
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                    <Button
+                        android:id="@+id/btSubscriptions"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
-                        android:src="@drawable/arrow_forward" />
+                        android:background="@drawable/arrow_forward"
+                        android:padding="11dp" />
 
                 </RelativeLayout>
                 <!--Questions-->
@@ -303,7 +305,7 @@
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
                         android:layout_toEndOf="@id/questions"
-                        android:text="Preferences of Movies"
+                        android:text="Genre Preferences"
                         android:textColor="@color/black"
                         android:textStyle="normal" />
 
