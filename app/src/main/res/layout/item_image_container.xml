@@ -33,16 +33,18 @@
             android:layout_height="wrap_content"
             android:text="Like"
             android:textOff="Like"
-            android:textOn="Liked" />
+            android:textOn="Liked"
+            android:drawableStart="@drawable/icon_thumb_up_unfilled" />
 
         <!-- Button for dislike -->
         <ToggleButton
             android:id="@+id/btnDislike"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Disike"
+            android:text="Dislike"
             android:textOff="Dislike"
-            android:textOn="Disliked" />
+            android:textOn="Disliked"
+            android:drawableStart="@drawable/icon_thumb_down_unfilled" />/>
 
 
         <!-- Button for saved -->
@@ -53,7 +55,8 @@
             android:layout_marginEnd="8dp"
             android:text="Save"
             android:textOff="Save"
-            android:textOn="Saved" />
+            android:textOn="Saved"
+            android:drawableStart="@drawable/icon_bookmark_unfilled" />/>
 
     </LinearLayout>
 

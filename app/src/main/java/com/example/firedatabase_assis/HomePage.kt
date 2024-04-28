@@ -20,8 +20,10 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.engine.GlideException
 import com.example.firedatabase_assis.databinding.ActivityHomepageBinding
 import kotlinx.coroutines.*
+import org.json.JSONArray
 import java.util.PriorityQueue
 import kotlin.coroutines.CoroutineContext
+import org.json.JSONObject
 
 
 class HomePage : AppCompatActivity(), CoroutineScope {
@@ -51,7 +53,8 @@ class HomePage : AppCompatActivity(), CoroutineScope {
         binding.bottomNavBar.setOnItemReselectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.bottom_menu_home -> {
-                    /*Already on home so no activity needed*/
+                    val intent = Intent(this, HomePage::class.java)
+                    startActivity(intent)
                 }
 
                 R.id.bottom_menu_explore -> {
@@ -63,10 +66,6 @@ class HomePage : AppCompatActivity(), CoroutineScope {
                     /*val intent = Intent(this, CommunitiesActivity::class.java)
                     startActivity(intent)*/
                 }
-                /*R.id.bottom_menu_profile-> {
-                    val intent = Intent(this, UserActivity::class.java)
-                    startActivity(intent)
-                }*/
                 R.id.bottom_menu_settings -> {
                     val intent = Intent(this, SettingsActivity::class.java)
                     startActivity(intent)
@@ -126,7 +125,21 @@ class HomePage : AppCompatActivity(), CoroutineScope {
                     val captionTextView =
                         imageContainer.findViewById<TextView>(R.id.captionTextView)
 
-
+                    /* // waiting for api calls so i can see output
+                    val captionTextView = findViewById<TextView>(R.id.captionTextView)
+                    val jsonObject = JSONObject(caption)
+                    // Extract the relevant information from the JSON object
+                    val title = jsonObject.getJSONObject("title")
+                    val overview = jsonObject.getString("overview")
+                    val streamingInfo = jsonObject.getJSONArray("streamingInfo")
+                    // Format the caption
+                    val formattedCaption = """
+                        **${title}**
+                        ${overview}
+                        **Streaming Info:**
+                        ${buildStreamingInfoString(streamingInfo)}
+                    """.trimIndent()
+                    captionTextView.text = formattedCaption*/
                     captionTextView.text = caption
 
                     val serviceTag = extractStreamingService(caption)
@@ -144,8 +157,27 @@ class HomePage : AppCompatActivity(), CoroutineScope {
                         e.logRootCauses("GlideException")
                     }
 
-                    // Handle like button click
+// Handle like button click
                     btnLike.setOnCheckedChangeListener { buttonView, isChecked ->
+                        if (isChecked) {
+                            // If like button is checked, ensure dislike button is unchecked
+                            btnDislike.isChecked = false
+                            // Update icon based on liked state
+                            btnLike.setCompoundDrawablesWithIntrinsicBounds(
+                                R.drawable.icon_thumb_up_filled, // Use your filled icon drawable
+                                0,
+                                0,
+                                0
+                            )
+                        } else {
+                            // If like button is unchecked, revert to the default icon
+                            btnLike.setCompoundDrawablesWithIntrinsicBounds(
+                                R.drawable.icon_thumb_up_unfilled, // Use your unfilled icon drawable
+                                0,
+                                0,
+                                0
+                            )
+                        }
                         val containerId = containerLayout.id.toString()
                         val containerTags =
                             containerTagsMap[containerId] ?: ContainerTags(null, null)
@@ -158,8 +190,27 @@ class HomePage : AppCompatActivity(), CoroutineScope {
 
                     }
 
-                    // Handle dislike button click
+// Handle dislike button click
                     btnDislike.setOnCheckedChangeListener { buttonView, isChecked ->
+                        if (isChecked) {
+                            // If dislike button is checked, ensure like button is unchecked
+                            btnLike.isChecked = false
+                            // Update icon based on disliked state
+                            btnDislike.setCompoundDrawablesWithIntrinsicBounds(
+                                R.drawable.icon_thumb_down_filled, // Use your filled icon drawable
+                                0,
+                                0,
+                                0
+                            )
+                        } else {
+                            // If dislike button is unchecked, revert to the default icon
+                            btnDislike.setCompoundDrawablesWithIntrinsicBounds(
+                                R.drawable.icon_thumb_down_unfilled, // Use your unfilled icon drawable
+                                0,
+                                0,
+                                0
+                            )
+                        }
                         val containerId = containerLayout.id.toString()
                         val containerTags =
                             containerTagsMap[containerId] ?: ContainerTags(null, null)
@@ -168,10 +219,30 @@ class HomePage : AppCompatActivity(), CoroutineScope {
 
                         // Update the containerTagsMap
                         containerTagsMap[containerId] = containerTags
-
                     }
 
+// Handle saved button click
                     btnSaved.setOnCheckedChangeListener { buttonView, isChecked ->
+                        if (isChecked) {
+                            // If saved button is checked, ensure both like and dislike buttons are unchecked
+                            btnLike.isChecked = false
+                            btnDislike.isChecked = false
+                            // Update icon based on saved state
+                            btnSaved.setCompoundDrawablesWithIntrinsicBounds(
+                                R.drawable.icon_bookmark_filled, // Use your filled icon drawable
+                                0,
+                                0,
+                                0
+                            )
+                        } else {
+                            // If saved button is unchecked, revert to the default icon
+                            btnSaved.setCompoundDrawablesWithIntrinsicBounds(
+                                R.drawable.icon_bookmark_unfilled, // Use your unfilled icon drawable
+                                0,
+                                0,
+                                0
+                            )
+                        }
                         val containerId = containerLayout.id.toString()
                         val containerTags =
                             containerTagsMap[containerId] ?: ContainerTags(null, null)
@@ -180,8 +251,6 @@ class HomePage : AppCompatActivity(), CoroutineScope {
 
                         // Update the containerTagsMap
                         containerTagsMap[containerId] = containerTags
-
-
                     }
 
 
@@ -275,4 +344,17 @@ class HomePage : AppCompatActivity(), CoroutineScope {
         super.onDestroy()
         loopJob?.cancel() // Cancel the loop job when the activity is destroyed
     }
+
+    /* // waiting for api calls so i can see output
+    private fun buildStreamingInfoString(streamingInfo: JSONArray): String {
+        val builder = StringBuilder()
+        for (i in 0 until streamingInfo.length()) {
+            val jsonObject = streamingInfo.getJSONObject(i)
+            builder.append("${jsonObject.getString("service")} - ${jsonObject.getString("streamingType")}")
+            if (i < streamingInfo.length() - 1) {
+                builder.append(", ")
+            }
+        }
+        return builder.toString()
+    }*/
 }

@@ -9,16 +9,22 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SwitchCompat
+import com.example.firedatabase_assis.databinding.ActivitySettingsBinding
+import com.example.firedatabase_assis.databinding.ActivityUserBinding
 
 
 class SettingsActivity : AppCompatActivity() {
-
+    private lateinit var bind: ActivitySettingsBinding
     private lateinit var nightModeSwitch: SwitchCompat
     private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_settings)
+        bind = ActivitySettingsBinding.inflate(layoutInflater)
+        setContentView(bind.root)
+
+        var value=intent.getStringExtra("name")
+        bind.DisplayUsername.text=value
 
         val btTime = findViewById<Button>(R.id.btTime)
         btTime.setOnClickListener(){
@@ -78,7 +84,7 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun backtomain(view: View){
-        val intent = Intent(this, MainActivity::class.java)
+        val intent = Intent(this, HomePage::class.java)
         startActivity(intent)
     }
 }
