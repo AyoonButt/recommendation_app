@@ -76,7 +76,7 @@ fun extractGenres(text: String): List<String> {
 data class ContainerTags(
     val service: String?,
     val genre: List<String>?,
-    var like: Boolean = false,
-    var dislike: Boolean = false,
-    var saved: Boolean = false
+    var likeState: Boolean = false,
+    var dislikeState: Boolean = false,
+    var savedState: Boolean = false
 )

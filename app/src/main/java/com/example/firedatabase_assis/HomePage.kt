@@ -26,8 +26,8 @@ import kotlin.coroutines.CoroutineContext
 
 class HomePage : AppCompatActivity(), CoroutineScope {
     private lateinit var binding: ActivityHomepageBinding
-    private val imageContainers: PriorityQueue<LinearLayout> =
-        PriorityQueue() // PriorityQueue to store image containers
+    private val imageContainers: PriorityQueue<ImageContainerWrapper> =
+        PriorityQueue() // Stores wrappers with priority and container data
     private lateinit var requestQueue: RequestQueue
     private val containerTagsMap: MutableMap<String, ContainerTags> = HashMap()
 
@@ -44,6 +44,7 @@ class HomePage : AppCompatActivity(), CoroutineScope {
         setContentView(binding.root)
         requestQueue = Volley.newRequestQueue(this)
         startLoop()
+        loadContainersFromQueue()
 
 
 // move to a separate view
@@ -76,11 +77,16 @@ class HomePage : AppCompatActivity(), CoroutineScope {
 
     private fun startLoop() {
         loopJob = launch {
-            repeat(10) {
+            repeat(5) {
                 loadImageWithDelay()
                 delay(15L)
             }
         }
+    }
+
+    private fun updateAndAddToQueue(wrapper: ImageContainerWrapper) {
+        wrapper.updatePriority() // Update the priority based on conditions
+        imageContainers.add(wrapper) // Add to the priority queue
     }
 
     private suspend fun loadImageWithDelay() {
@@ -129,10 +135,6 @@ class HomePage : AppCompatActivity(), CoroutineScope {
                     val genreTag = extractGenres(caption) //List of Strings
 
 
-
-
-
-
                     containerTagsMap[containerLayout.id.toString()] =
                         ContainerTags(serviceTag, genreTag)
 
@@ -148,10 +150,11 @@ class HomePage : AppCompatActivity(), CoroutineScope {
                         val containerTags =
                             containerTagsMap[containerId] ?: ContainerTags(null, null)
 
-                        containerTags.like = isChecked // Update liked state
+                        containerTags.likeState = isChecked // Update liked state
 
                         // Update the containerTagsMap
                         containerTagsMap[containerId] = containerTags
+
 
                     }
 
@@ -161,7 +164,7 @@ class HomePage : AppCompatActivity(), CoroutineScope {
                         val containerTags =
                             containerTagsMap[containerId] ?: ContainerTags(null, null)
 
-                        containerTags.dislike = isChecked // Update liked state
+                        containerTags.dislikeState = isChecked // Update liked state
 
                         // Update the containerTagsMap
                         containerTagsMap[containerId] = containerTags
@@ -173,7 +176,7 @@ class HomePage : AppCompatActivity(), CoroutineScope {
                         val containerTags =
                             containerTagsMap[containerId] ?: ContainerTags(null, null)
 
-                        containerTags.saved = isChecked // Update liked state
+                        containerTags.savedState = isChecked // Update liked state
 
                         // Update the containerTagsMap
                         containerTagsMap[containerId] = containerTags
@@ -184,7 +187,27 @@ class HomePage : AppCompatActivity(), CoroutineScope {
 
                     // Add the image container to the layout
                     containerLayout.addView(imageContainer)
+
+                    // Create an ImageContainerWrapper instance
+                    val wrapper = ImageContainerWrapper(
+
+                        priority = 0, // Set initial priority (can be updated later)
+                        imageView = imageView,
+                        btnLike = btnLike,
+                        btnDislike = btnDislike,
+                        btnSaved = btnSaved,
+                        captionTextView = captionTextView,
+                        containerLayoutId = containerLayout.id.toString(),
+                        containerTagsMap = containerTagsMap
+                    )
+
+                    // Update priority and add to the priority queue
+                    wrapper.updatePriority() // Update priority based on tags
+                    updateAndAddToQueue(wrapper)
+
+
                 },
+
                 Response.ErrorListener { error ->
                     // Handle error
                 }) {
@@ -219,6 +242,32 @@ class HomePage : AppCompatActivity(), CoroutineScope {
             .centerCrop()
             .placeholder(R.drawable.lotr) // Placeholder image while loading
             .into(imageView)
+
+    }
+
+    private fun loadContainersFromQueue() {
+        // Start a coroutine
+        launch {
+            while (imageContainers.isNotEmpty()) {
+                val wrapper =
+                    imageContainers.poll() // Retrieve and remove the container with the highest priority
+                // Fetch all attributes from the wrapper
+                val imageView = wrapper.imageView
+                val btnLike = wrapper.btnLike
+                val btnDislike = wrapper.btnDislike
+                val btnSaved = wrapper.btnSaved
+                val captionTextView = wrapper.captionTextView
+                val containerLayoutId = wrapper.containerLayoutId
+                val containerTagsMap = wrapper.containerTagsMap
+                val serviceTag = containerTagsMap[containerLayoutId]?.service
+                val genreTags = containerTagsMap[containerLayoutId]?.genre
+                val likeState = containerTagsMap[containerLayoutId]?.likeState
+                val dislikeState = containerTagsMap[containerLayoutId]?.dislikeState
+                val savedState = containerTagsMap[containerLayoutId]?.savedState
+
+                // Now you can use these attributes to load or manipulate your UI elements
+            }
+        }
 
     }
 
