@@ -28,7 +28,8 @@ class MainActivity : AppCompatActivity() {
             var username = binding.ed2.text.toString()
             var password = binding.ed3.text.toString()
 
-            val passwordPattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[*#&@!$])[a-zA-Z0-9*#&@!$]{8,}\$".toRegex()
+            val passwordPattern =
+                "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[*#&@!$])[a-zA-Z0-9*#&@!$]{8,}\$".toRegex()
 
             if (name.isNotEmpty() && username.isNotEmpty() && password.isNotEmpty()) {
                 if (passwordPattern.matches(password)) {
@@ -47,7 +48,7 @@ class MainActivity : AppCompatActivity() {
                         binding.ed1.text.clear()
                         binding.ed2.text.clear()
                         binding.ed3.text.clear()
-                        val intent = Intent(this, HomePage::class.java)
+                        val intent = Intent(this, SetupActivity::class.java)
                         startActivity(intent)
                     } else {
                         var ad = AlertDialog.Builder(this)
@@ -60,7 +61,11 @@ class MainActivity : AppCompatActivity() {
                         binding.ed3.text.clear()
                     }
                 } else {
-                    Toast.makeText(this, "Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character (*#&@!$), and must be at least 8 characters long", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        "Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character (*#&@!$), and must be at least 8 characters long",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             } else {
                 Toast.makeText(this, "All fields required", Toast.LENGTH_SHORT).show()
