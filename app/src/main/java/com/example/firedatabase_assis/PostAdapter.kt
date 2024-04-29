@@ -44,6 +44,7 @@ class PostAdapter(private val posts: MutableList<Post>, private val activity: Ap
                 )  // Assume "Current User" is the author
                 holder.newCommentText.text.clear()
                 holder.commentsRecyclerView.adapter?.notifyDataSetChanged()
+                Toast.makeText(activity, "Posted!", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -69,6 +70,7 @@ class PostAdapter(private val posts: MutableList<Post>, private val activity: Ap
     fun addPost(post: Post) {
         posts.add(0, post)  // Adds the new post at the beginning of the list
         notifyItemInserted(0)
+        Toast.makeText(activity, "Posted!", Toast.LENGTH_SHORT).show()
     }
 
 
