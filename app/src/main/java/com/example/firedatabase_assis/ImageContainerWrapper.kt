@@ -14,6 +14,7 @@ class ImageContainerWrapper(
     var btnSaved: ToggleButton? = null,
     var captionTextView: TextView? = null,
     var containerLayoutId: String? = null,
+    var imageUrl: String? = null,
 ) : Comparable<ImageContainerWrapper> {
 
     fun updatePriority() {

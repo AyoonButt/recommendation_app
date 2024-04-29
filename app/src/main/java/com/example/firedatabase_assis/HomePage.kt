@@ -20,10 +20,8 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.engine.GlideException
 import com.example.firedatabase_assis.databinding.ActivityHomepageBinding
 import kotlinx.coroutines.*
-import org.json.JSONArray
 import java.util.PriorityQueue
 import kotlin.coroutines.CoroutineContext
-import org.json.JSONObject
 
 
 class HomePage : AppCompatActivity(), CoroutineScope {
@@ -66,6 +64,7 @@ class HomePage : AppCompatActivity(), CoroutineScope {
                     /*val intent = Intent(this, CommunitiesActivity::class.java)
                     startActivity(intent)*/
                 }
+
                 R.id.bottom_menu_settings -> {
                     val intent = Intent(this, SettingsActivity::class.java)
                     startActivity(intent)
@@ -125,21 +124,7 @@ class HomePage : AppCompatActivity(), CoroutineScope {
                     val captionTextView =
                         imageContainer.findViewById<TextView>(R.id.captionTextView)
 
-                    /* // waiting for api calls so i can see output
-                    val captionTextView = findViewById<TextView>(R.id.captionTextView)
-                    val jsonObject = JSONObject(caption)
-                    // Extract the relevant information from the JSON object
-                    val title = jsonObject.getJSONObject("title")
-                    val overview = jsonObject.getString("overview")
-                    val streamingInfo = jsonObject.getJSONArray("streamingInfo")
-                    // Format the caption
-                    val formattedCaption = """
-                        **${title}**
-                        ${overview}
-                        **Streaming Info:**
-                        ${buildStreamingInfoString(streamingInfo)}
-                    """.trimIndent()
-                    captionTextView.text = formattedCaption*/
+
                     captionTextView.text = caption
 
                     val serviceTag = extractStreamingService(caption)
@@ -259,7 +244,6 @@ class HomePage : AppCompatActivity(), CoroutineScope {
 
                     // Create an ImageContainerWrapper instance
                     val wrapper = ImageContainerWrapper(
-
                         priority = 0, // Set initial priority (can be updated later)
                         imageView = imageView,
                         btnLike = btnLike,
@@ -267,7 +251,8 @@ class HomePage : AppCompatActivity(), CoroutineScope {
                         btnSaved = btnSaved,
                         captionTextView = captionTextView,
                         containerLayoutId = containerLayout.id.toString(),
-                        containerTagsMap = containerTagsMap
+                        containerTagsMap = containerTagsMap,
+                        imageUrl = baseURL
                     )
 
                     // Update priority and add to the priority queue
@@ -315,46 +300,63 @@ class HomePage : AppCompatActivity(), CoroutineScope {
     }
 
     private fun loadContainersFromQueue() {
-        // Start a coroutine
         launch {
             while (imageContainers.isNotEmpty()) {
-                val wrapper =
-                    imageContainers.poll() // Retrieve and remove the container with the highest priority
-                // Fetch all attributes from the wrapper
-                val imageView = wrapper.imageView
-                val btnLike = wrapper.btnLike
-                val btnDislike = wrapper.btnDislike
-                val btnSaved = wrapper.btnSaved
-                val captionTextView = wrapper.captionTextView
-                val containerLayoutId = wrapper.containerLayoutId
-                val containerTagsMap = wrapper.containerTagsMap
-                val serviceTag = containerTagsMap[containerLayoutId]?.service
-                val genreTags = containerTagsMap[containerLayoutId]?.genre
-                val likeState = containerTagsMap[containerLayoutId]?.likeState
-                val dislikeState = containerTagsMap[containerLayoutId]?.dislikeState
-                val savedState = containerTagsMap[containerLayoutId]?.savedState
+                val wrapper = imageContainers.poll()
 
-                // Now you can use these attributes to load or manipulate your UI elements
+                // Dequeue the wrapper but update UI elements in the main thread
+                withContext(Dispatchers.Main) {
+                    // Fetch attributes from the wrapper
+                    val imageView = wrapper.imageView
+                    val btnLike = wrapper.btnLike
+                    val btnDislike = wrapper.btnDislike
+                    val btnSaved = wrapper.btnSaved
+                    val captionTextView = wrapper.captionTextView
+                    val containerLayoutId = wrapper.containerLayoutId
+                    val containerTagsMap = wrapper.containerTagsMap
+                    val serviceTag = containerTagsMap[containerLayoutId]?.service
+                    val genreTags = containerTagsMap[containerLayoutId]?.genre
+                    val likeState = containerTagsMap[containerLayoutId]?.likeState
+                    val dislikeState = containerTagsMap[containerLayoutId]?.dislikeState
+                    val savedState = containerTagsMap[containerLayoutId]?.savedState
+
+
+
+                    if (imageView != null) {
+                        wrapper.imageUrl?.let { imageUrl ->
+                            Glide.with(imageView.context)
+                                .load(imageUrl)
+                                .placeholder(R.drawable.lotr) // Placeholder image while loading
+                                .into(imageView)
+                        }
+                    }
+
+                    // Update UI elements
+                    if (captionTextView != null) {
+                        captionTextView.text = wrapper.captionTextView?.text ?: ""
+                    }
+                    // Update like button state
+                    if (btnLike != null) {
+                        btnLike.isChecked = likeState ?: false
+                    }
+                    // Update dislike button visibility
+                    if (btnDislike != null) {
+                        btnDislike.isChecked = dislikeState ?: false
+                    }
+                    // Update saved button state
+                    if (btnSaved != null) {
+                        btnSaved.isChecked = savedState ?: false
+                    }
+                }
             }
         }
-
     }
+
 
     override fun onDestroy() {
         super.onDestroy()
         loopJob?.cancel() // Cancel the loop job when the activity is destroyed
     }
 
-    /* // waiting for api calls so i can see output
-    private fun buildStreamingInfoString(streamingInfo: JSONArray): String {
-        val builder = StringBuilder()
-        for (i in 0 until streamingInfo.length()) {
-            val jsonObject = streamingInfo.getJSONObject(i)
-            builder.append("${jsonObject.getString("service")} - ${jsonObject.getString("streamingType")}")
-            if (i < streamingInfo.length() - 1) {
-                builder.append(", ")
-            }
-        }
-        return builder.toString()
-    }*/
+ 
 }
