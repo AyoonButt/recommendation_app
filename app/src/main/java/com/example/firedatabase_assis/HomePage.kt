@@ -20,10 +20,8 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.engine.GlideException
 import com.example.firedatabase_assis.databinding.ActivityHomepageBinding
 import kotlinx.coroutines.*
-import org.json.JSONArray
 import java.util.PriorityQueue
 import kotlin.coroutines.CoroutineContext
-import org.json.JSONObject
 
 
 class HomePage : AppCompatActivity(), CoroutineScope {
@@ -49,7 +47,7 @@ class HomePage : AppCompatActivity(), CoroutineScope {
         loadContainersFromQueue()
 
 
-// move to a separate view
+        // move to a separate view
         binding.bottomNavBar.setOnItemReselectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.bottom_menu_home -> {
@@ -125,23 +123,73 @@ class HomePage : AppCompatActivity(), CoroutineScope {
                     val captionTextView =
                         imageContainer.findViewById<TextView>(R.id.captionTextView)
 
-                    /* // waiting for api calls so i can see output
-                    val captionTextView = findViewById<TextView>(R.id.captionTextView)
-                    val jsonObject = JSONObject(caption)
-                    // Extract the relevant information from the JSON object
-                    val title = jsonObject.getJSONObject("title")
-                    val overview = jsonObject.getString("overview")
-                    val streamingInfo = jsonObject.getJSONArray("streamingInfo")
-                    // Format the caption
-                    val formattedCaption = """
-                        **${title}**
-                        ${overview}
-                        **Streaming Info:**
-                        ${buildStreamingInfoString(streamingInfo)}
-                    """.trimIndent()
-                    captionTextView.text = formattedCaption*/
-                    captionTextView.text = caption
+                    // Parse the captionString to extract relevant information
+                    val parts = caption.split("\n")
 
+                    var title = ""
+                    var overview = ""
+                    var streamingService = ""
+                    var quality = ""
+                    //var link = ""
+                    //var videoLink = ""
+                    var year = ""
+                    //var imdbid = ""
+                    //var tmdbid = ""
+                    var genres = ""
+                    var directors = ""
+                    var creators = ""
+
+                    for (part in parts) {
+                        val keyValue = part.split(":")
+                        if (keyValue.size == 2) {
+                            val key = keyValue[0].trim()
+                            val value = keyValue[1].trim()
+                            when (key) {
+                                "title" -> title = value
+                                "overview" -> overview = value
+                                "streamingService" -> streamingService = value
+                                "quality" -> quality = value
+                                //"link" -> link = value
+                                //"videoLink" -> videoLink = value
+                                "year" -> year = value
+                                //"imdbid" -> imdbid = value
+                                //"tmdbid" -> tmdbid = value
+                                "genres" -> genres = value
+                                "directors" -> directors = value
+                                "creators" -> creators = value
+                            }
+                        }
+                    }
+                    val formattedGenres = genres.removeSurrounding("[", "]")
+                        .replace("Genre(id=", "")
+                        .replace("\\d+, name=".toRegex(), "") // Remove numbers followed by ', name='
+                        .replace(")", "")
+                        .trim() // Trims any leading or trailing whitespace
+                        .replace(", ", ", ") // Ensure consistent comma spacing
+                    // Trim square brackets and format directors
+                    val formattedDirectors = directors.removeSurrounding("[", "]").replace(",", ", ")
+                    val formattedCreators = creators.removeSurrounding("[", "]").replace(",", ", ")
+                    // Build the formatted information
+                    val formattedInfo = buildString {
+                        append("Title: $title\n")
+                        append("Overview: $overview\n")
+                        append("Streaming Service: $streamingService\n")
+                        append("Quality: $quality\n")
+                        //append("Link: $link\n")
+                        //append("Video Link: $videoLink\n")
+                        append("Year: $year\n")
+                        //append("IMDBID: $imdbid\n")
+                        //append("TMDBID: $tmdbid\n")
+                        append("Genres: $formattedGenres\n")
+                        append("Directors: $formattedDirectors\n")
+                        append("Creators: $formattedCreators\n")
+                    }
+
+                    // Display the formatted information
+                    Log.d("FormattedInfo", formattedInfo)
+
+                    // Set the formatted caption to the TextView
+                    captionTextView.text = formattedInfo
                     val serviceTag = extractStreamingService(caption)
 
 
@@ -157,7 +205,7 @@ class HomePage : AppCompatActivity(), CoroutineScope {
                         e.logRootCauses("GlideException")
                     }
 
-// Handle like button click
+                    // Handle like button click
                     btnLike.setOnCheckedChangeListener { buttonView, isChecked ->
                         if (isChecked) {
                             // If like button is checked, ensure dislike button is unchecked
@@ -190,7 +238,7 @@ class HomePage : AppCompatActivity(), CoroutineScope {
 
                     }
 
-// Handle dislike button click
+                    // Handle dislike button click
                     btnDislike.setOnCheckedChangeListener { buttonView, isChecked ->
                         if (isChecked) {
                             // If dislike button is checked, ensure like button is unchecked
@@ -221,7 +269,7 @@ class HomePage : AppCompatActivity(), CoroutineScope {
                         containerTagsMap[containerId] = containerTags
                     }
 
-// Handle saved button click
+                    // Handle saved button click
                     btnSaved.setOnCheckedChangeListener { buttonView, isChecked ->
                         if (isChecked) {
                             // If saved button is checked, ensure both like and dislike buttons are unchecked
@@ -344,17 +392,4 @@ class HomePage : AppCompatActivity(), CoroutineScope {
         super.onDestroy()
         loopJob?.cancel() // Cancel the loop job when the activity is destroyed
     }
-
-    /* // waiting for api calls so i can see output
-    private fun buildStreamingInfoString(streamingInfo: JSONArray): String {
-        val builder = StringBuilder()
-        for (i in 0 until streamingInfo.length()) {
-            val jsonObject = streamingInfo.getJSONObject(i)
-            builder.append("${jsonObject.getString("service")} - ${jsonObject.getString("streamingType")}")
-            if (i < streamingInfo.length() - 1) {
-                builder.append(", ")
-            }
-        }
-        return builder.toString()
-    }*/
 }
