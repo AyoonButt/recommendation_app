@@ -12,6 +12,11 @@
         android:theme="@style/Theme.Firedatabase_assis">
 
         <activity
+            android:name=".CommunitiesActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat" />
+
+        <activity
             android:name=".GenresActivity"
             android:exported="true"
             android:theme="@style/Theme.AppCompat.DayNight" />

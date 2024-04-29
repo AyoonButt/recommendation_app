@@ -2,33 +2,21 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
-      <entry key="HomePage">
-        <State />
-      </entry>
-      <entry key="QuestionsActivity">
-        <State />
-      </entry>
-      <entry key="SettingsActivity">
+      <entry key="app">
         <State>
-          <runningDeviceTargetSelectedWithDropDown>
+          <targetSelectedWithDropDown>
             <Target>
-              <type value="RUNNING_DEVICE_TARGET" />
+              <type value="QUICK_BOOT_TARGET" />
               <deviceKey>
                 <Key>
-                  <type value="SERIAL_NUMBER" />
-                  <value value="R5CT13B6ERW" />
+                  <type value="VIRTUAL_DEVICE_PATH" />
+                  <value value="C:\Users\ayoon\.android\avd\Pixel_Fold_API_34.avd" />
                 </Key>
               </deviceKey>
             </Target>
-          </runningDeviceTargetSelectedWithDropDown>
-          <timeTargetWasSelectedWithDropDown value="2024-04-27T19:14:02.156740400Z" />
+          </targetSelectedWithDropDown>
+          <timeTargetWasSelectedWithDropDown value="2024-04-29T04:43:05.884668300Z" />
         </State>
-      </entry>
-      <entry key="UserActivity">
-        <State />
-      </entry>
-      <entry key="app">
-        <State />
       </entry>
     </value>
   </component>

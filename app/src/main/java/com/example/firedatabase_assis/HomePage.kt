@@ -61,9 +61,10 @@ class HomePage : AppCompatActivity(), CoroutineScope {
                 }
 
                 R.id.bottom_menu_communities -> {
-                    /*val intent = Intent(this, CommunitiesActivity::class.java)
-                    startActivity(intent)*/
+                    val intent = Intent(this, CommunitiesActivity::class.java)
+                    startActivity(intent)
                 }
+
                 R.id.bottom_menu_settings -> {
                     val intent = Intent(this, SettingsActivity::class.java)
                     startActivity(intent)
@@ -74,7 +75,7 @@ class HomePage : AppCompatActivity(), CoroutineScope {
 
     private fun startLoop() {
         loopJob = launch {
-            repeat(5) {
+            repeat(2) {
                 loadImageWithDelay()
                 delay(15L)
             }
@@ -84,6 +85,7 @@ class HomePage : AppCompatActivity(), CoroutineScope {
     private fun updateAndAddToQueue(wrapper: ImageContainerWrapper) {
         wrapper.updatePriority() // Update the priority based on conditions
         imageContainers.add(wrapper) // Add to the priority queue
+
     }
 
     private suspend fun loadImageWithDelay() {
@@ -162,12 +164,16 @@ class HomePage : AppCompatActivity(), CoroutineScope {
                     }
                     val formattedGenres = genres.removeSurrounding("[", "]")
                         .replace("Genre(id=", "")
-                        .replace("\\d+, name=".toRegex(), "") // Remove numbers followed by ', name='
+                        .replace(
+                            "\\d+, name=".toRegex(),
+                            ""
+                        ) // Remove numbers followed by ', name='
                         .replace(")", "")
                         .trim() // Trims any leading or trailing whitespace
                         .replace(", ", ", ") // Ensure consistent comma spacing
                     // Trim square brackets and format directors
-                    val formattedDirectors = directors.removeSurrounding("[", "]").replace(",", ", ")
+                    val formattedDirectors =
+                        directors.removeSurrounding("[", "]").replace(",", ", ")
                     val formattedCreators = creators.removeSurrounding("[", "]").replace(",", ", ")
                     // Build the formatted information
                     val formattedInfo = buildString {
@@ -316,6 +322,7 @@ class HomePage : AppCompatActivity(), CoroutineScope {
                         imageUrl = baseURL
                     )
 
+                    Log.d("BaseURL", "Base URL added: ${wrapper.imageUrl}")
                     // Update priority and add to the priority queue
                     wrapper.updatePriority() // Update priority based on tags
                     updateAndAddToQueue(wrapper)
@@ -362,7 +369,9 @@ class HomePage : AppCompatActivity(), CoroutineScope {
 
     private fun loadContainersFromQueue() {
         launch {
+
             while (imageContainers.isNotEmpty()) {
+                Log.d("Caption", "Hi: ")
                 val wrapper = imageContainers.poll()
 
                 // Dequeue the wrapper but update UI elements in the main thread
@@ -380,22 +389,25 @@ class HomePage : AppCompatActivity(), CoroutineScope {
                     val likeState = containerTagsMap[containerLayoutId]?.likeState
                     val dislikeState = containerTagsMap[containerLayoutId]?.dislikeState
                     val savedState = containerTagsMap[containerLayoutId]?.savedState
-
+                    val imageUrl = wrapper.imageUrl
 
 
                     if (imageView != null) {
-                        wrapper.imageUrl?.let { imageUrl ->
-                            Glide.with(imageView.context)
-                                .load(imageUrl)
-                                .placeholder(R.drawable.lotr) // Placeholder image while loading
-                                .into(imageView)
-                        }
+                        Glide.with(imageView)
+                            .load(imageUrl)
+                            .diskCacheStrategy(DiskCacheStrategy.NONE)
+                            .centerCrop()
+                            .placeholder(R.drawable.lotr) // Placeholder image while loading
+                            .into(imageView)
                     }
+
 
                     // Update UI elements
                     if (captionTextView != null) {
                         captionTextView.text = wrapper.captionTextView?.text ?: ""
+
                     }
+
                     // Update like button state
                     if (btnLike != null) {
                         btnLike.isChecked = likeState ?: false
@@ -408,10 +420,18 @@ class HomePage : AppCompatActivity(), CoroutineScope {
                     if (btnSaved != null) {
                         btnSaved.isChecked = savedState ?: false
                     }
+
+
+                    // Print a message if captionTextView is null
+                    if (captionTextView == null) {
+                        Log.d("Caption", "CaptionTextView is null")
+                    }
                 }
             }
         }
     }
+
+
     private fun appendFormattedField(
         builder: StringBuilder,
         label: String,
