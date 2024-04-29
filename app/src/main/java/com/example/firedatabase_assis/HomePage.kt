@@ -171,18 +171,14 @@ class HomePage : AppCompatActivity(), CoroutineScope {
                     val formattedCreators = creators.removeSurrounding("[", "]").replace(",", ", ")
                     // Build the formatted information
                     val formattedInfo = buildString {
-                        append("Title: $title\n")
-                        append("Overview: $overview\n")
-                        append("Streaming Service: $streamingService\n")
-                        append("Quality: $quality\n")
-                        //append("Link: $link\n")
-                        //append("Video Link: $videoLink\n")
-                        append("Year: $year\n")
-                        //append("IMDBID: $imdbid\n")
-                        //append("TMDBID: $tmdbid\n")
-                        append("Genres: $formattedGenres\n")
-                        append("Directors: $formattedDirectors\n")
-                        append("Creators: $formattedCreators\n")
+                        appendFormattedField(this, "Title:", title)
+                        appendFormattedField(this, "Overview:", overview)
+                        appendFormattedField(this, "Streaming Service:", streamingService)
+                        appendFormattedField(this, "Quality:", quality)
+                        appendFormattedField(this, "Year:", year)
+                        appendFormattedField(this, "Genres:", formattedGenres)
+                        appendFormattedField(this, "Directors:", formattedDirectors)
+                        appendFormattedField(this, "Creators:", formattedCreators)
                     }
 
                     // Display the formatted information
@@ -387,6 +383,17 @@ class HomePage : AppCompatActivity(), CoroutineScope {
             }
         }
 
+    }
+    private fun appendFormattedField(
+        builder: StringBuilder,
+        label: String,
+        data: String,
+        format: (String) -> String = { it }  // Default format does nothing
+    ) {
+        val formattedData = format(data)
+        if (formattedData.isNotBlank()) {
+            builder.append("$label $formattedData\n")
+        }
     }
 
     override fun onDestroy() {
