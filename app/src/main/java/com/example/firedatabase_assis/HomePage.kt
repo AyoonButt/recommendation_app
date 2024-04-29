@@ -196,6 +196,7 @@ class HomePage : AppCompatActivity(), CoroutineScope {
                     val genreTag = extractGenres(caption) //List of Strings
 
 
+
                     containerTagsMap[containerLayout.id.toString()] =
                         ContainerTags(serviceTag, genreTag)
 
