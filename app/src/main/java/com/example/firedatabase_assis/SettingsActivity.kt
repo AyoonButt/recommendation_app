@@ -9,6 +9,8 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SwitchCompat
+import android.widget.Switch
+import android.widget.Toast
 import com.example.firedatabase_assis.databinding.ActivitySettingsBinding
 
 
@@ -16,6 +18,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var bind: ActivitySettingsBinding
     private lateinit var nightModeSwitch: SwitchCompat
     private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var notificationsSwitch: Switch
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,6 +67,15 @@ class SettingsActivity : AppCompatActivity() {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
                 editor.putBoolean("night", true)
                 editor.apply()
+            }
+        }
+
+        notificationsSwitch = findViewById(R.id.switch_notifications)
+        notificationsSwitch.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                Toast.makeText(this, "You will now receive notifications on any news relating to your preferences!", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Notifications Disabled :(", Toast.LENGTH_SHORT).show()
             }
         }
 

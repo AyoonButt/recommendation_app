@@ -145,6 +145,7 @@
                         android:textStyle="normal" />
 
                     <Switch
+                        android:id="@+id/switch_notifications"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
