@@ -17,6 +17,11 @@
             android:theme="@style/Theme.AppCompat.DayNight" />
 
         <activity
+            android:name=".ReviewActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.DayNight" />
+
+        <activity
             android:name=".GenresActivity"
             android:exported="true"
             android:theme="@style/Theme.AppCompat.DayNight" />

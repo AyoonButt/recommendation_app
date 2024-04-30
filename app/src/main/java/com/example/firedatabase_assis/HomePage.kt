@@ -44,7 +44,7 @@ class HomePage : AppCompatActivity(), CoroutineScope {
         setContentView(binding.root)
         requestQueue = Volley.newRequestQueue(this)
         startLoop()
-        loadContainersFromQueue()
+        //loadContainersFromQueue()
 
 
         // move to a separate view
@@ -56,8 +56,8 @@ class HomePage : AppCompatActivity(), CoroutineScope {
                 }
 
                 R.id.bottom_menu_explore -> {
-                    /*val intent = Intent(this, ExploreActivity::class.java)
-                    startActivity(intent)*/
+                    val intent = Intent(this, ReviewActivity::class.java)
+                    startActivity(intent)
                 }
 
                 R.id.bottom_menu_communities -> {
@@ -75,7 +75,7 @@ class HomePage : AppCompatActivity(), CoroutineScope {
 
     private fun startLoop() {
         loopJob = launch {
-            repeat(2) {
+            repeat(10) {
                 loadImageWithDelay()
                 delay(15L)
             }

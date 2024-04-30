@@ -13,5 +13,7 @@ data class Post(
     val community: String,
     var upvotes: Int,
     var downvotes: Int,
+    var upvoted: Boolean = false,
+    var downvoted: Boolean = false,
     val comments: MutableList<Comment> = mutableListOf()
 )
