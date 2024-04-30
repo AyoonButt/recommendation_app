@@ -11,14 +11,25 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         >
+
+        <ImageView
+            android:id="@+id/image_view3"
+            android:layout_width="128dp"
+            android:layout_height="141dp"
+            android:layout_marginStart="140dp"
+            android:layout_marginTop="48dp"
+            android:src="@drawable/filmo"
+            app:layout_constraintBaseline_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/image_view2" />
+
         <ImageView
             android:id="@+id/image_view2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/shape"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBaseline_toTopOf="parent"
-            />
+            app:layout_constraintStart_toStartOf="parent" />
         <TextView
             android:id="@+id/text1"
             android:layout_width="wrap_content"
@@ -51,7 +62,7 @@
             android:layout_height="50dp"
             android:layout_marginTop="35dp"
             android:background="@drawable/input_style"
-            android:hint="Enter passowrd"
+            android:hint="Enter password"
             android:inputType="textPassword"
             android:drawableRight="@drawable/ic_baseline_visibility_24"
             android:paddingRight="20dp"
@@ -80,26 +91,25 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/btnlogin"
             android:gravity="center"
             android:orientation="horizontal"
-            >
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnlogin">
+
             <TextView
                 android:id="@+id/txt1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Not Registered? "
                 android:textColor="@color/teal_200"
-                android:textSize="15dp"
-                />
+                android:textSize="15dp" />
+
             <TextView
                 android:id="@+id/regis_link"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Click here"
-                android:textStyle="bold"
                 android:textColor="@color/teal_200"
                 android:textSize="16dp"
                 />

@@ -27,29 +27,37 @@
         android:orientation="horizontal">
 
         <!-- Button for like -->
-        <Button
+        <ToggleButton
             android:id="@+id/btnLike"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:text="Like" />
+            android:text="Like"
+            android:textOff="Like"
+            android:textOn="Liked"
+            android:drawableStart="@drawable/icon_thumb_up_unfilled" />
 
         <!-- Button for dislike -->
-        <Button
+        <ToggleButton
             android:id="@+id/btnDislike"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="12dp"
-            android:text="Dislike" />
+            android:text="Dislike"
+            android:textOff="Dislike"
+            android:textOn="Disliked"
+            android:drawableStart="@drawable/icon_thumb_down_unfilled" />/>
 
 
         <!-- Button for saved -->
-        <Button
+        <ToggleButton
             android:id="@+id/btnSaved"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
-            android:text="Saved" />
+            android:text="Save"
+            android:textOff="Save"
+            android:textOn="Saved"
+            android:drawableStart="@drawable/icon_bookmark_unfilled" />/>
+
     </LinearLayout>
 
     <TextView

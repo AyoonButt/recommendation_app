@@ -164,7 +164,7 @@ class MediaDBHelper(context: Context) :
         return isEmpty
     }
 
-    fun getCaption(context: Context): String? {
+    fun getCaption(context: Context): String {
         // Create an instance of your MediaDBHelper class
         val dbHelper = MediaDBHelper(context)
 
@@ -214,7 +214,7 @@ class MediaDBHelper(context: Context) :
         )
 
         // Row retrieved from the database
-        var row: String? = null
+        var row = ""
 
         // Check if there is at least one row in the cursor
         if (cursor.moveToFirst()) {

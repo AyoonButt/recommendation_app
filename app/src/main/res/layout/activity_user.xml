@@ -37,12 +37,15 @@
         android:layout_marginTop="30dp"
         android:background="@drawable/lightor_backgroung">
 
-        <EditText
+        <TextView
             android:id="@+id/Edituser"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Username"
+            android:text="Username"
+            android:textColor="@color/black"
+            android:gravity="center"
             android:paddingLeft="20dp"
+            android:layout_margin="20dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/imageProfile"
@@ -93,6 +96,7 @@
         android:gravity="center"
         android:layout_marginTop="20dp"
         android:orientation="vertical">
+
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -3,7 +3,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".HomePage">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+            app:title="FilmO"
+            android:logo="@drawable/filmo"
+            android:background="@color/light_blue_600" />
+
+    </com.google.android.material.appbar.AppBarLayout>
 
     <ImageView
         android:id="@+id/image_view2"
@@ -38,11 +56,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/uname"
-        android:layout_marginTop="14dp">
+        android:layout_marginTop="-60dp">
 
         <include layout="@layout/item_image_container" />
 
     </ScrollView>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/bottom_nav_bar"
+        app:menu="@menu/bottom_nav_menu"
+        android:layout_alignParentBottom="true"/>
 
 
 </RelativeLayout>
