@@ -97,7 +97,7 @@ class HomePage : AppCompatActivity(), CoroutineScope {
             val url = "https://api.themoviedb.org/3/find/"
             val key = "d9dd9d3ae838db18d51f88cd50e479e4"
             val token =
-                "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJkOWRkOWQzYWU4MzhkYjE4ZDUxZjg4Y2Q1MGU0NzllNCIsInN1YiI6IjY2MjZiM2ZkMjU4ODIzMDE2NDkxODliMSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.wIF16waIO_pGrRKxWr4ye8QFYUFMGP6WBDX5Wg2JOpM"
+                ""
 
             val externalId = dbHelper.getLastImdbIdFromDatabase(this@HomePage)
             Log.d("ExternalID", "External ID: $externalId")
